@@ -6,13 +6,12 @@ import requests
 
 repo = 'repo'
 endpoint = 'https://api.github.com/'
-output_dir = os.path.join('blog', repo)
+output_dir = os.path.join('blog', 'introduction-to-64-bit-assembly')
 
 index_template = '''---
 layout: default
 title: Introduction to 64-bit Assembly Language
 ---
-<!DOCTYPE html>
 <p>
     This is an introduction to x86-64 assembly language on Linux using the
     <a href="nasm.us">NASM assembler</a>. This is not complete yet, I'm just
@@ -25,8 +24,6 @@ title: Introduction to 64-bit Assembly Language
 guide_template = '''---
 layout: default
 ---
-<!DOCTYPE html>
-
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 
 <style>
@@ -39,7 +36,7 @@ layout: default
     }
 </style>
 
-<div class="markdown-body">
+<div class="markdown-body">{{ body }}</div>
 '''
 
 def process_guide(guide):
@@ -61,7 +58,7 @@ def process_guide(guide):
     output_path = os.path.join(output_dir, guide['name'])
     os.makedirs(output_path, exist_ok=True)
 
-    output = guide_template + res.text.replace('<br>', '') + '\n</div>'
+    output = guide_template.replace('{{ body }}', res.text.replace('<br>', ''))
 
     with open(os.path.join(output_path, 'index.html'), 'w') as f:
         f.write(output)
