@@ -4,7 +4,7 @@ import os
 import sys
 import requests
 
-repo = 'introduction-to-64-bit-assembly'
+repo = 'repo'
 endpoint = 'https://api.github.com/'
 output_dir = os.path.join('blog', repo)
 
