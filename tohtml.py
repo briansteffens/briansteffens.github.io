@@ -6,7 +6,7 @@ import requests
 
 repo = 'repo'
 endpoint = 'https://api.github.com/'
-output_dir = os.path.join('blog', 'introduction-to-64-bit-assembly')
+output_dir = 'introduction-to-64-bit-assembly'
 
 index_template = '''---
 layout: default

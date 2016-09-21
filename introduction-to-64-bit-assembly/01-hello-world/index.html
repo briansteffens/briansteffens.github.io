@@ -1,8 +1,6 @@
 ---
 layout: default
 ---
-<!DOCTYPE html>
-
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 
 <style>
@@ -15,19 +13,18 @@ layout: default
     }
 </style>
 
-<div class="markdown-body">
-<h1>Hello World</h1>
+<div class="markdown-body"><h1>Hello World</h1>
 
-<p>In keeping with tradition, the first program we make needs to do nothing but
-print out "Hello, world!" (or some variation) and then exit. In most languages
+<p>In keeping with tradition, the first program we make should do nothing except
+print out "Hello, world!" (or some variation) and then exit. In most languages,
 this is a one- or two-line snippet, but in assembly it's a little more than
 that. Don't worry though, it's conceptually the same as in any other language.
 All we need to do is tell the operating system what to print.</p>
 
 <h1>The program</h1>
 
-<p>Start by opening up your favorite text editor (nano, vim, emacs, gedit,
-whatever you're comfortable with) and typing in the following program:</p>
+<p>Start by opening up your favorite text editor and typing in the following
+program:</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .data</span>
 
@@ -43,22 +40,29 @@ whatever you're comfortable with) and typing in the following program:</p>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">14</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
 
-<p>If you're used to higher level languages like c or Python, this probably looks
-overly complicated for just printing a line of text to the console.
-However, while this is definitely more verbose, it's not actually more complex.</p>
+<p>This probably looks surprisingly complicated for a program which is only
+supposed to print a line of text to the console. However, while it is
+undeniably verbose, it's not actually complex: only a single action is
+performed by this code, it just happens to be broken up into a lot of lines.</p>
 
 <p>At its highest level, this program is divided into two sections: <em>data</em> and
 <em>text</em>.</p>
 
 <ul>
-<li>The <strong>text</strong> section is where the code goes. These are the instructions that
-tell the computer what to do and in what order to do it.</li>
-<li>The <strong>data</strong> section contains data used by that code. In this case, it
-contains a string of text to output to the console.</li>
+<li>The <strong>data</strong> section contains data which the program will use. When the
+program runs, the contents of this section will be loaded into memory and
+made available for use by the code. In this case, the data section contains
+a string of text called <em>message</em>, which we'll be printing out to the
+console.</li>
+<li>The <strong>text</strong> section is where the code goes. This is a list of instructions
+that tells the computer what to do when the program runs. In this case, it
+will be telling the operating system to print the string <em>message</em> to the
+console.</li>
 </ul>
 
 <p>In assembly, you can't have literal strings (like "Hello, world!") mixed
-directly into your code. Data and code must be in separate sections.</p>
+directly into your code. Data and the code that acts on that data must be
+declared in separate sections.</p>
 
 <p>We'll break the program down and examine each line one at a time.</p>
 
@@ -68,14 +72,14 @@ directly into your code. Data and code must be in separate sections.</p>
 your program. When the program runs, the operating system will load this data
 into memory and it will be made available to your code to read or manipulate.</p>
 
-<p>The data here can be anything: numbers, arrays, strings, or basically anything.
+<p>The data here can be anything: numbers, arrays, strings, or anything else.
 Data is really just a series of 0s and 1s, and it's up to the code to interpret
 that data. The meaning or context of the data comes from how your code deals
 with it.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    message db </span><span class="pl-s">"Hello, world!"</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span></pre></div>
 
-<p>This line declares a string called <code>text</code> with a value of "Hello, world!".
+<p>This line declares a string called <em>message</em>, with a value of "Hello, world!".
 Breaking this line down further, you can see that it's comprised of several
 parts:</p>
 
@@ -85,7 +89,7 @@ parts:</p>
             the data being declared. Wherever <em>message</em> appears in the
             code, the computer will know you mean this "Hello, world!"
             string. This name is up to you as the programmer. It should be
-            descriptive and what it refers to should be clear. Other
+            descriptive, and what it refers to should be clear. Other
             possible examples for the names of strings are "error_message",
             "prompt", "confirm_message", etc.</li>
 <li>
@@ -111,8 +115,8 @@ parts:</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .text</span></pre></div>
 
-<p>This marks the end of the previous section and the beginning of the <code>text</code>
-section, which is where the code is. The data section simply declares
+<p>This marks the end of the <code>data</code> section and the beginning of the <code>text</code>
+section, which is where the code goes. The data section simply declares
 static data for later use, but code is a series of instructions which control
 the computer and modify its state.</p>
 
@@ -122,7 +126,7 @@ like modern Linux, we can't actually interact directly with the video hardware
 to change what appears on screen (and we wouldn't want to either, since that
 would require in-depth technical knowledge of every video card we wanted the
 program to work with and make it impossible for our programs to run alongside
-any other programs). So what we do instead is tell the operating system (Linux)
+any other programs). So instead, we tell the operating system (Linux)
 what we want to print to the console, and it does the hard work for us. The way
 this is done is by performing a <em>system call</em>. We will set a number of
 <em>registers</em> which will explain to Linux the work we want it to do for us, and
@@ -135,8 +139,7 @@ lines of code, but conceptually they make up a single operation.</p>
 <p>These two lines do different things, but are closely connected. Basically, this
 defines the entry-point of the program. When the program is run, the line
 immediately following <code>_start:</code> will be executed first. This is how the
-computer knows which instruction in the program to start with when the program
-is run.</p>
+computer knows which instruction to start with when the program is run.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">1</span></pre></div>
 
@@ -145,17 +148,18 @@ will actually execute. Let's break it down into pieces:</p>
 
 <ul>
 <li>
-<strong>mov</strong> is the instruction type. It's a command, and it tells the processor
-what kind of action to carry out. In this case, <code>mov</code> stands for "move". It's
-used to move data and values around between registers and memory. We'll get
-into these in more detail later, but for now you can think of <code>mov</code> as a way
-to shuffle information around so it can be worked on or stored for later.</li>
+<strong>mov</strong> is the instruction type, or <em>opcode</em>. It's a command, and it tells
+the processor what kind of action to carry out. In this case, <code>mov</code> stands
+for "move". It's used to move data and values around between registers and
+memory. We'll get into these in more detail later, but for now you can think
+of <code>mov</code> as a way to shuffle information around so it can be worked on or
+stored for later.</li>
 <li>
 <strong>rax</strong> refers to a register. This is a temporary storage location, where
 values can be written to, read from, or operated on. There are lots of
 registers: rax, rbx, rcx, rdx, rbp, rsp, rdi, rsi, etc. Many of them have
 special purposes or are reserved for certain things, but rax is one of the
-general purpose registers. This means it can be used by the programmer for
+general purpose registers. This means it can be used by a programmer for
 whatever they need. If you're coming from a higher level language, you can
 think of registers as built-in global variables. In fact, they're
 significantly faster than typical variables, because they're not located in
@@ -166,26 +170,26 @@ into the instruction. We're not moving information from a register or from
 memory, it's just the literal value "1".</li>
 </ul>
 
-<p>All together, this instruction tells the processor to put the value <code>1</code> into
+<p>All together, this instruction tells the processor to put the value 1 into
 the register <code>rax</code>. It can be read as "move 1 into rax" or "load rax with 1" or
-whatever you prefer. Or, if you're used to higher level programming languages,
-you can think of it as <code>rax = 1</code>.</p>
+whatever you prefer. If you're used to higher level programming languages, you
+can think of it as <code>rax = 1</code>.</p>
 
-<p>After this instruction executes, <code>rax</code> will hold the value "1". The reason for
-this is that we're setting up to make a call to the operating system. "1"
+<p>After this instruction executes, <code>rax</code> will be set to the value 1. The reason
+for this is that we're preparing to make a call to the operating system. 1
 stands for <em>sys_write</em>, which tells the operating system to write some data to
 a file or stream. <code>rax</code> is the register Linux checks to figure out what a
 program wants it to do.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">1</span></pre></div>
 
-<p>This is very similar to the above, but in this case we're loading the value
-"1" into the register <code>rdi</code>. "1" stands for STDOUT, which means to write to
-the console. This could also be "2" to write to STDERR, which is normally where
-errors are written.</p>
+<p>This is very similar to the above, but in this case we're loading the value 1
+into the register <code>rdi</code>. In this context, 1 stands for STDOUT, which means to
+write to the console. This could also be 2 to write to STDERR, which is
+normally where errors are written.</p>
 
 <p>After this instruction executes, both <code>rax</code> and <code>rdi</code> will be set to the value
-"1".</p>
+1.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> message</span></pre></div>
 
@@ -193,18 +197,18 @@ errors are written.</p>
 to write that data (<code>rdi</code> = 1). Now we need to tell Linux <em>what</em> to write. Here
 we set <code>rsi</code> to the beginning of our "Hello, world!" string. When Linux checks
 this register to see what data to write to STDOUT, it will find the location
-in memory where the <em>message</em> string starts.</p>
+in memory where the <em>message</em> string begins.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">14</span></pre></div>
 
-<p>Now we tell Linux how many bytes of <code>message</code> to write. This may seem weird.
-The reason for this is that above, when we set <code>rsi</code> to <code>message</code>, we didn't
+<p>Now we tell Linux how many bytes of <em>message</em> to write. This may seem weird.
+The reason for this is when we set <code>rsi</code> to <em>message</em>, we didn't
 really set <code>rsi</code> to the entire string "Hello, world!". Registers like <code>rsi</code> on
 a 64-bit processor only have 64 bits each, which is 8 bytes. The string "Hello,
 world!" is ASCII, where each character is stored as one byte. This means our
 string takes up a total of 14 bytes including the newline at the end. So it's
 impossible to store the entire string in a register all at once. What we do
-instead is store the location in memory where the message begins.</p>
+instead is store the location in memory where the string begins.</p>
 
 <p>When Linux goes to examine <code>rsi</code>, it won't see "Hello, world!", it will see an
 address that points to a location in memory where the letter "H" is. By
@@ -224,22 +228,24 @@ to print. In this case that number is 14, in order to include the entire string
 have some work for it to do and that the details of that work have been loaded
 into the proper registers. When this line is executed, control will be passed
 from our program to the operating system. Since registers are global to the
-entire machine, Linux will be able to see the values we set in the registers
-<code>rax</code>, <code>rdi</code>, <code>rsi</code>, and <code>rdx</code>.</p>
+entire machine, Linux will be able to see the values we loaded into the
+registers <code>rax</code>, <code>rdi</code>, <code>rsi</code>, and <code>rdx</code>, and it will use those values to
+determine what to do.</p>
 
 <p>Linux will do the following:</p>
 
-<ul>
-<li>Check <code>rax</code> and find the value "4", which stands for sys_write. This means
+<ol>
+<li>Check <code>rax</code> and find the value 1, which stands for sys_write. This means
 we want to write some data.</li>
-<li>Check <code>rdi</code> to see <em>where</em> to write the data to and find "1", which stands
+<li>Check <code>rdi</code> to see <em>where</em> to write the data to and find 1, which stands
 for STDOUT (the console).</li>
 <li>Check <code>rsi</code> to see <em>what</em> data to write, and find the address of our string.</li>
-<li>Check <code>rdx</code> to see how much data to write, and find the length of our string.</li>
+<li>Check <code>rdx</code> to see how much data to write, and find the length of our
+string.</li>
 <li>Finally, with these 4 questions answered, Linux will write 14 characters
 starting from the "H" in "Hello, world!" out to the console, and then return
 control to our program.</li>
-</ul>
+</ol>
 
 <h1>Running the program</h1>
 
@@ -258,22 +264,22 @@ contents of "hello.asm" will be converted from assembly language into machine
 code and the output will be written to a new file called "hello.o". This is
 called an object file.</p>
 
-<p>The <em>-f elf64</em> part tells nasm that this is a 64-bit program. Without this
+<p>The <code>-f elf64</code> part tells nasm that this is a 64-bit program. Without this
 option, nasm will assume that "hello.asm" is a 32-bit program and fail, since
 it's not 32-bit code.</p>
 
-<p>If nasm returns any errors, check that you typed the program in exactly as it
+<p>If nasm reports any errors, check that you typed the program in exactly as it
 appears above and try again. If it's successful, there won't be any output.</p>
 
 <p>The file "hello.o" should now be present alongside "hello.asm". This is the
 machine code version of your program. The code you wrote has been converted
-into a format optimized for the computer to execute it.</p>
+into a format the computer is capable of executing.</p>
 
-<p>However, it's still not quite ready to be run. Right now, it's just a blob of
+<p>However, it's still not quite ready to run. Right now, it's just a blob of
 machine code and data. The operating system wouldn't know what to do with it.
 In order for the operating system to understand it, we have to use a linker to
 convert it into an executable file format. In this case, we'll be using the
-GNU linker (called <code>ld</code>) to turn our object file ("hello.o") into an executable
+GNU linker (called <em>ld</em> to turn our object file into an executable
 file ready for Linux to run:</p>
 
 <div class="highlight highlight-source-shell"><pre>ld hello.o</pre></div>
@@ -305,10 +311,10 @@ way. Segmentation faults can be very frustrating because they give so little
 information about what exactly happened or even where in the program the error
 occurred.</p>
 
-<p>In this case, it's not actually that complicated. We just forgot to exit the
+<p>In this case, it's not actually that complicated: we just forgot to exit the
 program. Linux expects that when a program is finished running, it will tell it
-so. We didn't do that, we printed a string to the console, and then did nothing
-else. Linux had no way of knowing if we were really finished or if it should
+so. We didn't do that: we printed a string to the console, and then did nothing
+else. Linux had no way of knowing if we were really finished, or if it should
 keep trying to run instructions. To fix this problem, we need to make another
 system call like the console print call we made above.</p>
 
@@ -324,21 +330,21 @@ out the differences:</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">60</span></pre></div>
 
 <p>We're making another system call to Linux, but this time with a different
-command. Instead of a "1" which means <em>sys_write</em>, we're passing a "60" which
-means <em>sys_exit</em>.  This tells the operating system that the program is finished
+command. Instead of a 1, which means <em>sys_write</em>, we're passing a 60, which
+means <em>sys_exit</em>. This tells the operating system that the program is finished
 running and it's safe to shut it down and remove it from memory.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span></pre></div>
 
-<p>Next we set <code>rdi</code> to <code>0</code>. This is the exit status code.  Whenever a program
+<p>Next we set <code>rdi</code> to 0. This is the exit status code.  Whenever a program
 finishes, it returns a status code, which other programs can use to determine
-if a program finished successfully or if something went wrong.  In this case
-nothing went wrong, so we return a 0, which indicates success.</p>
+whether a program finished successfully. In this case nothing went wrong, so we
+return a 0, which indicates success.</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
 
 <p>Finally, we make the system call. Linux checks <code>rax</code> to determine what to do.
-It finds "60", which means we want to end the program, so that's what it does.</p>
+It finds 60, which means we want to end the program, so that's what it does.</p>
 
 <p>Re-assemble, re-link, and re-run the program after saving the new changes:</p>
 
@@ -350,19 +356,19 @@ ld hello.o
 
 <div class="highlight highlight-source-shell"><pre>Hello, world<span class="pl-k">!</span></pre></div>
 
-<p>We exited the program the way Linux expects, so no more segmentation fault!
+<p>We exited the program the way Linux expects, so the segmentation fault is gone!
 You can also see the error code by running the following:</p>
 
 <div class="highlight highlight-source-shell"><pre><span class="pl-c1">echo</span> <span class="pl-smi">$?</span></pre></div>
 
 <p>This line will print out the status code of the last program run. Since we
-set <code>rdi</code> to "0" before returning, "0" will be returned in this case. Try
+set <code>rdi</code> to 0 before returning, 0 will be returned in this case. Try
 changing the value of <code>rdi</code> to something else and seeing it change the result
 of <code>echo $?</code>.</p>
 
-<p><em>Note: if you run <code>echo $?</code> multiple times it will always show "0" after the
-first run. This is because echo itself is a program which returns "0" on
-success. So if you run it twice, then on the second run it will be reporting
+<p><em>Note: if you run <code>echo $?</code> multiple times it will always show 0 after the
+first run. This is because echo is itself a program which returns 0 on
+success. So if you run it twice, then on the second run, it will be reporting
 the exit code of the previous time it was run, rather than the status code of
 the program run before that.</em></p>
 
@@ -374,13 +380,13 @@ but only within certain contexts. This hurts the readability of the program.
 Any time you can, you should try to avoid using these magic numbers because
 they make the program harder to read without providing any benefits.</p>
 
-<p>An easy way to fix this problem is to use macros. Macros in nasm allow you
+<p>An easy way to fix this problem is to use macros. Macros in <em>nasm</em> allow you
 to define a string of descriptive text which, when the file is assembled, will
 be replaced with something else. A macro looks like this:</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span></pre></div>
 
-<p>This macro definition tells nasm to replace all occurrences of the word
+<p>This macro definition tells <em>nasm</em> to replace all occurrences of the word
 "sys_write" with the value "1" during assembly. We can use this to improve the
 readability of the program. Change the program to match the following:</p>
 
@@ -411,15 +417,15 @@ readability of the program. Change the program to match the following:</p>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
 
 <p>It's now much easier to tell at a glance which system calls are being made
-and what they're doing. Rather than a bunch of decimal numbers throughout the
-code, there are descriptive bits of text.</p>
+and what they're doing. Rather than a bunch of integers scattered throughout
+the code, there are descriptive bits of text.</p>
 
 <p>But there's still one magic number, and it's an even worse offender than the
-others! The "14", which corresponds to the number of characters in the
-<code>message</code> string is not only a magic number, it's also dependent on another
-value in the program. If we were to change the value of <code>message</code> to some other
+others! The 14, which corresponds to the number of characters in the
+<em>message</em> string is not only a magic number, it's also dependent on another
+value in the program. If we were to change the value of <em>message</em> to some other
 text, we would also have to remember to go and update the <code>mov rdx, 14</code> line to
-match the new length of <code>message</code>. In a simple program like this, that wouldn't
+match the new length of <em>message</em>. In a simple program like this, that wouldn't
 be a big deal. But in a more complicated program with hundreds or thousands of
 instructions, where a single string might be re-used several times throughout
 the code, it could require hunting down lots of system calls and updating the
@@ -429,15 +435,14 @@ program, we may not even realize we'd missed a spot until much later when a
 user of the program reported a bug.</p>
 
 <p>To solve this problem, we can use a feature of nasm which allows us to define
-a symbol whose value is automatically set to the length of the <code>message</code>
-string:</p>
+a symbol whose value is automatically set to the length of a string:</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    message_len equ $</span><span class="pl-s1">-</span><span class="pl-en">message</span></pre></div>
 
-<p>This sets the symbol <code>message_len</code> to be equal to the number of bytes in the
-symbol <code>message</code>. So whenever the assembler encounters <code>message_len</code> in the
+<p>This sets the symbol <em>message_len</em> to be equal to the number of bytes in the
+symbol <em>message</em>. So whenever the assembler encounters "message_len" in the
 program's source code, it will replace it with the number of characters in
-<code>message</code>. Adjust the program one final time to incorporate the new change:</p>
+<em>message</em>. Adjust the program one final time to incorporate the new change:</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
 <span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
@@ -478,5 +483,4 @@ defined - at a glance you can see what they mean. And the code itself under
 <li>Make the program print the "Hello, world!" message multiple times.</li>
 <li>Change the program to make it print several different messages instead of
 just "Hello, world!".</li>
-</ol>
-</div>
+</ol></div>
