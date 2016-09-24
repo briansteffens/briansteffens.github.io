@@ -14,9 +14,9 @@ title: Introduction to 64-bit Assembly Language
 ---
 <p>
     This is an introduction to x86-64 assembly language on Linux using the
-    <a href="nasm.us">NASM assembler</a>. This is not complete yet, I'm just
-    putting up a few sections as they become ready. Here is the current section
-    list:
+    <a href="http://nasm.us">NASM assembler</a>. This is not complete yet, I'm
+    just putting up a few sections as they become ready. Here is the current
+    section list:
 </p>
 <ol>{}</ol>
 '''
