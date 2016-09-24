@@ -259,8 +259,8 @@ contents of "hello.asm" will be converted from assembly language into machine
 code and the output will be written to a new file called "hello.o". This is
 called an object file.</p>
 
-<p>The <code>-f elf64</code> part tells nasm that this is a 64-bit program. Without this
-option, nasm will assume that "hello.asm" is a 32-bit program and fail, since
+<p>The <code>-f elf64</code> option tells nasm that this is a 64-bit program. Without this,
+nasm will assume that "hello.asm" is a 32-bit program and fail, since
 it's not 32-bit code.</p>
 
 <p>If nasm reports any errors, check that you typed the program exactly as it
@@ -274,7 +274,7 @@ into a format the computer is capable of executing.</p>
 machine code and data. The operating system wouldn't know what to do with it.
 In order for the operating system to understand it, we have to use a linker to
 convert it into an executable file format. In this case, we'll be using the
-GNU linker (called <em>ld</em> to turn our object file into an executable
+GNU linker (called <em>ld</em>) to turn our object file into an executable
 file ready for Linux to run:</p>
 
 <div class="highlight highlight-source-shell"><pre>ld hello.o</pre></div>
@@ -296,7 +296,7 @@ Segmentation fault (core dumped)</pre></div>
 
 <h1>Segmentation fault!</h1>
 
-<p>So our program sort of worked. It wrote the string out to the console as
+<p>So our program partially worked. It wrote the string out to the console as
 expected, but we also got a very nasty error: the dreaded segfault.</p>
 
 <p>A segmentation fault basically means that the operating system didn't like
@@ -319,8 +319,8 @@ system call like the console print call we made above.</p>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
 
-<p>This should look pretty familiar, but we'll step through it like above to point
-out the differences:</p>
+<p>This should look pretty familiar, but we'll step through it like before to
+point out the differences:</p>
 
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">60</span></pre></div>
 
@@ -358,13 +358,13 @@ You can also see the error code by running the following:</p>
 
 <p>This line will print out the status code of the last program run. Since we
 set <code>rdi</code> to 0 before returning, 0 will be returned in this case. Try
-changing the value of <code>rdi</code> to something else and seeing it change the result
-of <code>echo $?</code>.</p>
+changing the value of <code>rdi</code> to something else and seeing how it changes the
+result of <code>echo $?</code>.</p>
 
-<p><em>Note: if you run <code>echo $?</code> multiple times it will always show 0 after the
+<p><em>Note: if you run <code>echo $?</code> multiple times, it will always show a 0 after the
 first run. This is because echo is itself a program which returns 0 on
 success. So if you run it twice, then on the second run, it will be reporting
-the exit code of the previous time it was run, rather than the status code of
+the exit code of the previous time echo was run, rather than the status code of
 the program run before that.</em></p>
 
 <h1>Improving the code</h1>
@@ -416,12 +416,12 @@ and what they're doing. Rather than a bunch of integers scattered throughout
 the code, there are descriptive bits of text.</p>
 
 <p>But there's still one magic number, and it's an even worse offender than the
-others! The 14, which corresponds to the number of characters in the
-<em>message</em> string is not only a magic number, it's also dependent on another
-value in the program. If we were to change the value of <em>message</em> to some other
-text, we would also have to remember to go and update the <code>mov rdx, 14</code> line to
-match the new length of <em>message</em>. In a simple program like this, that wouldn't
-be a big deal. But in a more complicated program with hundreds or thousands of
+others! The 14, which corresponds to the number of characters in the <em>message</em>
+string, is not only a magic number: it's also dependent on another value in the
+program. If we were to change the value of <em>message</em> to some other text, we
+would also have to remember to update the <code>mov rdx, 14</code> line to match the new
+length of <em>message</em>. In a simple program like this, that wouldn't be a big
+deal. But in a more complicated program with hundreds or thousands of
 instructions, where a single string might be re-used several times throughout
 the code, it could require hunting down lots of system calls and updating the
 character count over and over. It would be easy to miss some of the places
@@ -466,8 +466,8 @@ program's source code, it will replace it with the number of characters in
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
 
-<p>No more magic numbers! You can change the "Hello, world!" text to be anything
-you want and you don't have to worry about changing the system call that prints
+<p>No more magic numbers! You can change the text "Hello, world!" to be anything
+you want and you don't have to worry about updating the system call that prints
 it.  The literal values like 0, 1, and 60 still appear in the code, but they're
 defined - at a glance you can see what they mean. And the code itself under
 <code>_start:</code> is much clearer and what it does is more obvious.</p>
