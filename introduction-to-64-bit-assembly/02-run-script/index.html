@@ -1,0 +1,213 @@
+---
+layout: default
+---
+<link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
+
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+    }
+</style>
+
+<div class="markdown-body"><h1>Run script</h1>
+
+<p>Before continuing with more programming, we should optimize the process a bit.
+Previously, every time a change has been made to the program, it's been
+necessary to run the assembler, the linker, and finally run the program.  In
+order to see the exit status code, yet another command is necessary: <code>echo $?</code>.
+This process can be improved. A fast feedback loop can be very helpful,
+allowing you to quickly see the results of changes as you experiment with
+different instructions.</p>
+
+<p>For real software projects, there are a number of proper build tools available.
+The GNU program <code>make</code> is very popular and is a fairly standardized way to
+manage complex builds. For these small exercises, however, a quicker way to get
+up and running is to use a shell script.</p>
+
+<p>Any commands you type into a UNIX terminal emulator can be scripted. This
+includes all of the commands we've used so far to assemble, link, and run
+programs.</p>
+
+<p>By creating a file which contains all of the commands to be run in order, you
+can type a single command into the terminal, which will automatically run that
+list of commands, saving you the chore of re-entering them over and over every
+time you make a change to your program.</p>
+
+<h1>A new program</h1>
+
+<p>First, open a new file and call it "exit.asm". Type the following and save it:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>This should look pretty familiar: it's basically the previous program but
+without the console print system call. All this program does is immediately
+exit, returning a status code of 0.</p>
+
+<h1>Writing the run script</h1>
+
+<p>Now we assemble and run it. The manual way to do this looks something like the
+following:</p>
+
+<div class="highlight highlight-source-shell"><pre>nasm -f elf64 <span class="pl-c1">exit</span>.asm
+ld <span class="pl-c1">exit</span>.o
+./a.out
+<span class="pl-c1">echo</span> <span class="pl-smi">$?</span></pre></div>
+
+<p>These commands perform the following actions:</p>
+
+<ol>
+<li>The file "exit.asm" is assembled, producing an object file called "exit.o".</li>
+<li>The object file "exit.o" is linked, producing the executable file "a.out".</li>
+<li>The executable file "a.out" is run.</li>
+<li>Finally, the status code of the program is printed to the console.</li>
+</ol>
+
+<p>This manual procedure works fine, but it slows down the process of programming.
+It's important to have a short feedback loop so that when you make changes, you
+can instantly see the result. To this end, we're going to turn these commands
+into a shell script which will perform them automatically.</p>
+
+<p>Open a new file and call it "run". Type the following and save it:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c">#!/usr/bin/env bash</span>
+
+nasm -f elf64 <span class="pl-c1">exit</span>.asm <span class="pl-k">&amp;&amp;</span>
+ld <span class="pl-c1">exit</span>.o <span class="pl-k">&amp;&amp;</span>
+./a.out
+<span class="pl-c1">echo</span> <span class="pl-smi">$?</span></pre></div>
+
+<p>This looks very similar to the manual list of commands above, but with a few
+changes. We'll step through this one line at a time:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c">#!/usr/bin/env bash</span></pre></div>
+
+<p>Since this is a text file instead of machine code, the computer can't execute
+it directly. This first line tells the computer which program to use to
+interpret the rest of the file.</p>
+
+<p>When you attempt to execute a text file, the first line of that file is checked
+to figure out how to process the file. The first two characters <code>#!</code> are called
+a <em>shebang</em>, and they signal that the text to follow will be a program capable
+of interpreting the rest of the file. This can be any program, provided it
+knows how to interpret the contents of the file. Python and Perl are common
+examples, but you can also make your own.  In this case, it's bash, which is a
+shell interpreter. This means bash will interpret the rest of the contents of
+the file as if they were commands entered on the terminal.</p>
+
+<div class="highlight highlight-source-shell"><pre>nasm -f elf64 <span class="pl-c1">exit</span>.asm <span class="pl-k">&amp;&amp;</span></pre></div>
+
+<p>This command runs the nasm assembler on the "exit.asm" file. This should be
+familiar from the last section. However, there is also something new: the
+double ampersand (<code>&amp;&amp;</code>) at the end. This means that the script should only
+continue if this command is successful.  If nasm fails to assemble the program
+(for example, if there's a syntax error in "exit.asm"), the script will not
+continue.</p>
+
+<div class="highlight highlight-source-shell"><pre>ld <span class="pl-c1">exit</span>.o <span class="pl-k">&amp;&amp;</span></pre></div>
+
+<p>This runs the linker to create the final executable file "a.out". Again, the
+<code>&amp;&amp;</code> makes sure the script will only continue if this step is successful.</p>
+
+<div class="highlight highlight-source-shell"><pre>./a.out</pre></div>
+
+<p>Now the program is run. Notice that this line doesn't end with a double
+ampersand <code>&amp;&amp;</code> like the previous lines. This is because our program may not
+exit successfully.  Remember that when a program ends, it returns a status
+code. If that status code is 0, the program is considered successful. If the
+status code is not 0, it's considered a failure. If our program doesn't return
+a 0, we still want the next line to run, so that we can see the status code
+returned. If we used <code>&amp;&amp;</code> at the end of this line, we would only see the status
+code returned by our program if it was a 0. This way, the script will continue
+regardless of the status code returned by the program.</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c1">echo</span> <span class="pl-smi">$?</span></pre></div>
+
+<p>This line prints the exit status code of the previous program, which in this
+case is our program: "a.out".</p>
+
+<h1>Running the script</h1>
+
+<p>Make sure both "exit.asm" and "run" are typed correctly and saved to disk.
+Then, using the terminal, make the "run" script executable:</p>
+
+<div class="highlight highlight-source-shell"><pre>chmod +x run</pre></div>
+
+<p>This shell command makes the "run" text file executable. Without it, the
+shell interpreter would refuse to run it.</p>
+
+<p>Finally, execute the "run" script:</p>
+
+<div class="highlight highlight-source-shell"><pre>./run</pre></div>
+
+<p>If all went well, you should see the number "0". This means the "exit.asm"
+program was assembled, linked, executed, and returned a status code of 0.
+To confirm, try changing the "exit.asm" program to return a different status
+code.</p>
+
+<p>Change the line:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span></pre></div>
+
+<p>To:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span></pre></div>
+
+<p>And then run the script again:</p>
+
+<div class="highlight highlight-source-shell"><pre>./run</pre></div>
+
+<p>You should now see a 7 instead of a 0. The "run" script should speed up
+your ability to experiment and try different things as you go along. It can
+be adapted to each project by changing the names of the files in the commands.</p>
+
+<h1>Making the script more reusable</h1>
+
+<p>Right now the script uses hard-coded filenames. It works with the "exit.asm"
+program, but if you wanted to use it on another file, you'd have to replace
+all occurrences of the word "exit" with the new program name. It's possible to
+have this replacement performed automatically every time the script is run by
+using variables.</p>
+
+<p>Take a look at the final version of the script below:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c">#!/usr/bin/env bash</span>
+
+nasm -f elf64 <span class="pl-smi">$1</span>.asm <span class="pl-k">&amp;&amp;</span>
+ld <span class="pl-smi">$1</span>.o <span class="pl-k">&amp;&amp;</span>
+./a.out
+<span class="pl-c1">echo</span> <span class="pl-smi">$?</span></pre></div>
+
+<p>It's exactly the same as before, except every occurrence of "exit" has been
+replaced with <code>$1</code>. In bash, <code>$1</code> refers to the first command-line argument
+passed in when the script was run. Make the changes above and then try running
+the script again, this time specifying "exit" on the command line:</p>
+
+<div class="highlight highlight-source-shell"><pre>./run <span class="pl-c1">exit</span></pre></div>
+
+<p>This command executes the "run" script, passing it a single command-line
+argument with a value of "exit". From within the "run" script, the symbol <code>$1</code>
+refers to the first command-line argument. So every time <code>$1</code> appears in the
+"run" script, it will be replaced with whatever you type after <code>./run</code> on the
+command line: in this case, "exit".</p>
+
+<p>The script will otherwise work the same as before, but now you can use it to
+run other programs just by replacing "exit" with the name of the program you
+want to assemble and run.  So if you made another program called
+"something.asm", you could assemble, link, and run it by entering:</p>
+
+<div class="highlight highlight-source-shell"><pre>./run something</pre></div>
+
+<p>This version of the script is much more reusable. It can be used to assemble
+and run many simple programs without adjustment.</p></div>

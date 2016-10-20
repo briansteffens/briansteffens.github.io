@@ -67,6 +67,10 @@ guides = [
     {
         'title': 'Hello, world!',
         'name': '01-hello-world'
+    },
+    {
+        'title': 'Run script',
+        'name': '02-run-script'
     }
 ]
 
