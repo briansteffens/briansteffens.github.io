@@ -1,0 +1,767 @@
+---
+layout: default
+---
+<link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
+
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+    }
+</style>
+
+<div class="markdown-body"><h1>User Input</h1>
+
+<p>In a previous section, we wrote text out to the user, but have had no way to
+get input back from the user. In this section, we will introduce a new system
+call which allows us to read a line of text from the console.</p>
+
+<p><em>sys_read</em> is the opposite of <em>sys_write</em>. While <em>sys_write</em> writes data from
+memory to the console, <em>sys_read</em> reads data from the console and saves that
+data into memory for later use by the program. Making a <em>sys_read</em> system call
+is very similar to using <em>sys_write</em>: all we have to do is set the registers
+to the appropriate values and tell the operating system when we're ready.</p>
+
+<p>To make a <em>sys_write</em> call:</p>
+
+<ul>
+<li>
+<code>rax</code> must be set to 1, indicating <em>sys_write</em>
+</li>
+<li>
+<code>rdi</code> must be set to 1, indicating <em>stdout</em> (console output).</li>
+<li>
+<code>rsi</code> must be set to an address in memory where the string to be printed can
+be found.</li>
+<li>
+<code>rdx</code> must be set to the number of characters to write from memory to the
+console.</li>
+</ul>
+
+<p>Compare the above to <em>sys_read</em>, which is pretty similar:</p>
+
+<ul>
+<li>
+<code>rax</code> must be set to 0, indicating <em>sys_read</em>
+</li>
+<li>
+<code>rdi</code> must be set to 0, indicating <em>stdin</em> (console input).</li>
+<li>
+<code>rsi</code> must be set to an address in memory where the input string can be
+saved.</li>
+<li>
+<code>rdx</code> must be set to the maximum number of characters to accept from the
+user.</li>
+</ul>
+
+<p>The first program we'll make that uses <em>sys_read</em> will be very simple. It will
+accept input from the user and then print that same string right back out.
+Create a new file called "repeat.asm" and type the following program into it:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_read </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">stdin </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">success </span><span class="pl-c1">0</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .bss</span>
+
+    <span class="pl-c1">%define</span> <span class="pl-en">buffer_len </span><span class="pl-c1">64</span>
+<span class="pl-en">    buffer: resb buffer_len</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; Read input from the user</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_read</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdin</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> buffer</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> buffer_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Write whatever the user entered back out</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> buffer</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; End the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>There are three high-level operations here:</p>
+
+<ol>
+<li>Read a line of input from the user and save that input into memory.</li>
+<li>Write the input string from memory back out to the console.</li>
+<li>Exit the program.</li>
+</ol>
+
+<p>Let's go through the source file in detail:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_read </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">stdin </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">success </span><span class="pl-c1">0</span></pre></div>
+
+<p>These are the constants we'll be using to make system calls. <em>sys_exit</em> is 60,
+<em>stdin</em> is 0, etc. This is just like previous programs, but we've added some
+new definitions because of the new system call being made.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .bss</span>
+
+    <span class="pl-c1">%define</span> <span class="pl-en">buffer_len </span><span class="pl-c1">64</span>
+<span class="pl-en">    buffer: resb buffer_len</span></pre></div>
+
+<p>This is a new section type. Previously, we have worked with the <em>text</em> and
+<em>data</em> sections. This is a new type of section, called <em>bss</em>. Take a look at
+how these three sections compare:</p>
+
+<ul>
+<li>The <strong>text</strong> section is where code (instructions) go.</li>
+<li>The <strong>data</strong> section is for initialized data. This is memory for which we
+have an initial value when the program starts. In the "Hello, world!"
+section, we printed a string out to the user whose value we knew ahead of
+time.</li>
+<li>The <strong>bss</strong> section is for uninitialized data. This is memory which will be
+set dynamically by the program as it runs. Since the value of this memory
+will be set to whatever the user enters, we don't know what it will be ahead
+of time.</li>
+</ul>
+
+<p>We could use the <em>data</em> section for this if we really wanted to, by giving
+<em>buffer</em> some garbage initial value that we expect to be overwritten, but it's
+wasteful to include that garbage data in the executable file. The <em>bss</em> section
+allows us to say we need a region of memory reserved, without actually taking
+up that number of bytes on disk. The operating system will reserve the
+requested number of bytes in memory each time the program runs.</p>
+
+<p>So the purpose of this section is to make a region of memory which the user's
+input can be written to. Let's break it up into pieces and check out each
+line individually:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .bss</span></pre></div>
+
+<p>This defines the beginning of the <em>bss</em> section, where any uninitialized memory
+is declared.</p>
+
+<div class="highlight highlight-source-assembly"><pre>    <span class="pl-c1">%define</span> <span class="pl-en">buffer_len </span><span class="pl-c1">64</span></pre></div>
+
+<p>This creates a constant called <em>buffer_len</em>, which will be the total number of
+bytes of memory reserved for storing user input. In this case, anywhere we
+use the text "buffer_len" in the code, it will be replaced with the number 64.
+This value can be basically whatever you want, but 64 is a reasonable number
+in this case.</p>
+
+<p><em>Note: this is not actually part of the bss section. <code>%define</code> is an example
+of an assembler directive, which does not translate directly to machine code.
+It's a convenience offered by the assembler which allows us to define the size
+of the buffer once and then refer to it elsewhere, so if we ever want to change
+the size of the buffer, we only have to change it in this one place.</em></p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    buffer: resb buffer_len</span></pre></div>
+
+<p>This is where the magic happens. This line declares the area in memory where
+the user's input will be stored. This is in 3 sections:</p>
+
+<ul>
+<li>
+<strong>buffer</strong> is the name of the area in memory we're declaring. Anywhere in the
+code that we use the name "buffer" will be replaced with the memory address
+to the beginning of this region in memory.</li>
+<li>
+<strong>resb</strong> stands for "reserve bytes". This tells the assembler we're reserving
+some number of bytes of memory.</li>
+<li>
+<strong>buffer_len</strong> gives the number of bytes we want to reserve. In this case
+we're using the constant buffer_len, which is 64. We could alternatively just
+type the number 64 here.</li>
+</ul>
+
+<p>All together, this reserves a 64-byte area in memory which we can refer to by
+the name "buffer". When the program runs, this memory will be reserved for the
+program and we'll be able to read and write to it.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .text</span></pre></div>
+
+<p>Now we're getting into more familiar territory. This is where the code begins.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span></pre></div>
+
+<p>This is the entry-point of the program, marking the first instruction that
+will be executed when the program is run.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Read input from the user</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_read</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdin</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> buffer</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> buffer_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>The first thing the program does is read input from the user by making a
+<em>sys_read</em> system call. Like other system calls, we set up the registers with
+the details of the operation we want carried out and then issue the <code>syscall</code>
+instruction, which notifies the operating system to do our bidding.</p>
+
+<p>In this case, we're telling the operating system to read characters from the
+console and store them in memory at the location given by <em>buffer</em>. The
+operating system will let the user type until they hit the enter key, and then
+up to 64 characters of text will be saved to memory. After the <code>syscall</code>
+instruction executes, the total number of bytes entered by the user will be
+available to us in the <code>rax</code> register. Whatever text the user entered will
+be stored in memory, and we'll be able to access it through the label <em>buffer</em>.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Write whatever the user entered back out</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> buffer</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Now that the user's input is stored in memory and we can reference that region
+of memory with the name <em>buffer</em>, we just print whatever the user typed right
+back out to them.</p>
+
+<p>This is very similar to previous <em>sys_write</em> calls, with one major difference.
+Previously, we printed a static string "Hello, world!", meaning that we knew what
+the string would be ahead of time, as well as how many characters it would be.
+This time around, we don't actually know how many characters the user may have
+entered. We know they couldn't have entered more than 64 characters, but other
+than that, we have no idea. Luckily, <em>sys_read</em> returns the number of characters
+the user entered in the register <code>rax</code>. <em>sys_write</em> expects the number of
+characters to write to be in the register <code>rdx</code>. So we copy the value left by
+<em>sys_read</em> in <code>rax</code> to <code>rdx</code>, where <em>sys_write</em> expects it.</p>
+
+<p>Altogether, this system call tells the operating system to write the number of
+bytes that were previously read from memory, starting at the address <em>buffer</em>,
+out to the console.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; End the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Finally, we make a third system call to exit the program successfully.</p>
+
+<p>Make sure the program is typed correctly as listed above, save it as
+"repeat.asm", and run it using the "run" script from previous sections:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">./run repe</span><span class="pl-c1">at</span></pre></div>
+
+<p>The program should appear to pause and do nothing, waiting for input from you.
+Type some text (like "Greetings!") and press enter. The program should repeat
+whatever you typed and exit. The total output should look something like this:</p>
+
+<pre><code>Greetings!
+Greetings!
+0
+</code></pre>
+
+<p><em>Remember that 0 is the program status code, indicating that the program
+exited successfully.</em></p>
+
+<h1>Prompting</h1>
+
+<p>The "repeat.asm" program doesn't tell the user what to do: it just hangs until
+the user presses enter. We can mix and match <em>sys_write</em> and <em>sys_read</em> calls
+to provide some instructions to the user and some formatting to the output.</p>
+
+<p>For this next program, we're going to ask the user for their name and then
+greet them. This can be broken down into the following system calls:</p>
+
+<ol>
+<li>
+<em>sys_write</em> - print "Please enter your name: "</li>
+<li>
+<em>sys_read</em> - input the user's name</li>
+<li>
+<em>sys_write</em> - print "Hello, "</li>
+<li>
+<em>sys_write</em> - print the user's name</li>
+<li>
+<em>sys_write</em> - print "!"</li>
+</ol>
+
+<p>This will produce final output that looks a bit like this (depending on what
+you enter):</p>
+
+<pre><code>Please enter your name: Brian
+Hello, Brian!
+</code></pre>
+
+<p>To get started, create a new file called "helloname.asm" and type the following
+program in:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_read </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">stdin </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">success </span><span class="pl-c1">0</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">newline </span><span class="pl-c1">10</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .bss</span>
+
+    <span class="pl-c1">%define</span> <span class="pl-en">name_max_len </span><span class="pl-c1">64</span>
+<span class="pl-en">    name: resb name_max_len</span>
+<span class="pl-en">    name_len: resq </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-en">    prompt: db </span><span class="pl-s">"Please enter your name: "</span>
+<span class="pl-en">    prompt_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">prompt</span>
+
+<span class="pl-en">    response_start: db </span><span class="pl-s">"Hello, "</span>
+<span class="pl-en">    response_start_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">response_start</span>
+
+<span class="pl-en">    response_end: db </span><span class="pl-s">"!"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    response_end_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">response_end</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; Write the prompt out to the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> prompt</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> prompt_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Read the user's name from the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_read</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdin</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> name</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> name_max_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Store the number of characters entered by the user</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">],</span><span class="pl-en"> </span><span class="pl-v">rax</span>
+
+<span class="pl-c">; Write the start of the response</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> response_start</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> response_start_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Write the user's name</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> name</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">]</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Write the end of the response</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> response_end</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> response_end_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; End the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>This is a much longer program than the previous one, but it mostly just reuses
+the same concepts. There are only a couple of new things here. Let's step
+through it in detail:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_read </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">stdin </span><span class="pl-c1">0</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">success </span><span class="pl-c1">0</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">newline </span><span class="pl-c1">10</span></pre></div>
+
+<p>These are the same constants we defined before. The only difference is the
+inclusion of newline, with a value of 10. This is the newline character
+(produced when you press enter). We'll use this for formatting purposes.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .bss</span>
+
+    <span class="pl-c1">%define</span> <span class="pl-en">name_max_len </span><span class="pl-c1">64</span>
+<span class="pl-en">    name resb: name_max_len</span>
+<span class="pl-en">    name_len: resq </span><span class="pl-c1">1</span></pre></div>
+
+<p>Here we declare our uninitialized data. Like before, we reserve a 64 byte area
+in memory for user input. This time we call it <em>name</em> since this is where the
+user's name will be stored.</p>
+
+<p>We also declare a new value called <em>name_len</em>. This is where we'll store the
+number of characters the user inputs (the length of <em>name</em>), so we can use it
+later. The declaration follows the same structure as the <em>name</em> declaration:</p>
+
+<ul>
+<li>
+<em>name_len</em> names the memory we're reserving so we can refer to it in the
+code.</li>
+<li>
+<em>resq</em> means to reserve a quad-word. This is 8 bytes, or 64 bits. On a 64-bit
+processor, the registers are 64 bits each. This makes 64 bits a natural size
+for an integer, since it requires no conversion to move it around between
+registers and memory.</li>
+<li>
+<em>1</em> means we only need one quad-word reserved. This is not a series of bytes
+like the string, it's only one piece of data: the number of characters typed
+by the user.</li>
+</ul>
+
+<p>Altogether, the bss section defines two regions of memory:</p>
+
+<ul>
+<li>
+<em>name</em>, which is 64 bytes and will be used to store up to 64 characters
+entered by the user.</li>
+<li>
+<em>name_len</em>, which is 8 bytes and will be used to store a single integer
+indicating the total number of characters entered by the user.</li>
+</ul>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-en">    prompt: db </span><span class="pl-s">"Please enter your name: "</span>
+<span class="pl-en">    prompt_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">prompt</span>
+
+<span class="pl-en">    response_start: db </span><span class="pl-s">"Hello, "</span>
+<span class="pl-en">    response_start_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">response_start</span>
+
+<span class="pl-en">    response_end db: </span><span class="pl-s">"!"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    response_end_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">response_end</span></pre></div>
+
+<p>Here is the data section, where we declare some initialized data. This is
+memory for which we have values ahead of time. We're declaring 3 static
+strings, plus a length count for each:</p>
+
+<ul>
+<li>
+<em>prompt</em> will be shown to the user first, telling them what to do.</li>
+<li>
+<em>response_start</em> will be printed before the user's name is repeated back to
+them.</li>
+<li>
+<em>response_end</em> will be printed after the user's name, giving punctuation and
+formatting to the response: an exclamation point and a newline character.</li>
+</ul>
+
+<p>Each of these also has an accompanying <em>_len</em> value so we know how many
+characters each string contains.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span></pre></div>
+
+<p>Now we get to the code!</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Write the prompt out to the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> prompt</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> prompt_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>The first thing we do is make a <em>sys_write</em> call to print out "Please enter
+your name: " when the program starts.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Read the user's name from the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_read</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdin</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> name</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> name_max_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Next up, we read some input from the user. Whatever they type is stored in
+memory starting at the address indicated by <em>name</em>.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Store the number of characters entered by the user</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">],</span><span class="pl-en"> </span><span class="pl-v">rax</span></pre></div>
+
+<p>After the <em>sys_read</em> call returns, the number of characters entered by the user
+will be provided in the <code>rax</code> register. We're going to need this later, but
+unlike in the previous program, we won't be using it immediately. We're going
+to print the static string "Hello, " first, which will involve overwriting both
+<code>rax</code> and <code>rdx</code>. By the time we get around to writing the user's name back out,
+the information we need (the number of characters in the user's name) will be
+lost.</p>
+
+<p>In order to get around this, we need a place to temporarily save the number of
+characters in the user's name.</p>
+
+<p>The instruction above copies the value from <code>rax</code> into memory at the address
+indicated by <em>name_len</em>. Notice the phrasing there. <em>name_len</em> is a memory
+address: information about where we can store this data. This is unlike dealing
+with registers, which are storage locations themselves. You can copy a value
+directly to a register, but when dealing with a memory address you have to
+clarify that you want to copy the value to memory at the given address.</p>
+
+<p>This is where the square brackets come in. They're necessary because <em>name_len</em>
+refers to an address in memory where data can be stored. The actual value of
+<em>name_len</em> might be something like <code>0x6001b4</code>, or wherever the operating system
+chooses to put it. We want the value of <code>rax</code> to be copied into memory at that
+location.</p>
+
+<p>You may be wondering why the square brackets aren't always required. For
+example, when we read the user's input into memory, the instruction has no
+square brackets:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> name</span></pre></div>
+
+<p>In the code above, <em>name</em> is a memory address just like <em>name_len</em>. The
+difference is that the <em>sys_read</em> system call expects an address. It expects
+<code>rsi</code> to contain an address in memory where it can write the input data. If
+we put <em>name</em> in square brackets, that would copy the memory itself into <code>rsi</code>
+instead of the address. When the <em>sys_read</em> call tried to write to that
+location in memory it would end up in the wrong place.</p>
+
+<p>Let's take a short digression to explain this better. Here is a table showing
+some (made up) locations in memory:</p>
+
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Address</th>
+<th align="center">Value</th>
+<th align="center">ASCII</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>string</td>
+<td>0x6001b0</td>
+<td align="center">66</td>
+<td align="center">'G'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b1</td>
+<td align="center">114</td>
+<td align="center">'r'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b2</td>
+<td align="center">101</td>
+<td align="center">'e'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b3</td>
+<td align="center">101</td>
+<td align="center">'e'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b4</td>
+<td align="center">116</td>
+<td align="center">'t'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b5</td>
+<td align="center">105</td>
+<td align="center">'i'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b6</td>
+<td align="center">110</td>
+<td align="center">'n'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b7</td>
+<td align="center">103</td>
+<td align="center">'g'</td>
+</tr>
+<tr>
+<td></td>
+<td>0x6001b8</td>
+<td align="center">115</td>
+<td align="center">'s'</td>
+</tr>
+</tbody>
+</table>
+
+<p>The table above shows 9 bytes in memory, containing the string "Greetings".
+Each byte has its own unique address ranging from 0x6001b0 to 0x6001b8. The
+first byte has a label: <em>string</em>.</p>
+
+<p>If we refer to <em>string</em> directly, we're talking about the memory address. For
+example:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> string</span></pre></div>
+
+<p>The above instruction would set <code>rax</code> to the value 0x6001b0, which is the
+address of the beginning of the string.</p>
+
+<p>However, if we refer to <em>string</em> with square brackets, we're referring to the
+value stored in memory at the address 0x6001b0:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">string</span><span class="pl-s1">]</span></pre></div>
+
+<p>This instruction would set <code>rax</code> to the value of the first 8 characters in the
+string: "Greeting". We can also refer to individual characters:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> byte </span><span class="pl-v">al</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">string</span><span class="pl-s1">]</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> byte </span><span class="pl-v">bl</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">string </span><span class="pl-s1">+</span><span class="pl-en"> </span><span class="pl-c1">4</span><span class="pl-s1">]</span></pre></div>
+
+<p>These instructions would load the character "G" into the register <code>al</code> and the
+character "t" into the register 'bl'.</p>
+
+<p>Data labels like name and name_len are just addresses which point to locations
+in memory which contain data. Adding square brackets indicates that you're
+interested in the data <em>at that location</em> in memory, not the address itself.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Write the start of the response</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> response_start</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> response_start_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Now that the user has entered their name, we begin to respond. This system call
+prints out the string <em>response_start</em>, which is "Hello, ".</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Write the user's name</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> name</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">]</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Next, we print the name the user entered. Again, notice the square brackets:
+<code>[name_len]</code>.</p>
+
+<p><em>name_len</em> is an address in memory. It might be something like 0x6001b4 (or
+wherever the operating system decided to locate it). We don't want to print
+0x6001b4 bytes to the console, since there aren't nearly that many available.
+Instead, we want to look up the value stored at the address 0x6001b4 and
+print that number of characters. This should be a more reasonable number like
+5 or 8, depending on the length of the user's name. So we use the square
+brackets to indicate this.</p>
+
+<p>The total output so far will look something like this (if your name happens to
+be Brian):</p>
+
+<pre><code>Hello, Brian
+</code></pre>
+
+<p>Now we finish up the output:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Write the end of the response</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> response_end</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> response_end_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>To finish off the sentence and apply some formatting, we write the string
+response_end: "!\n" to the console. The exclamation point is added to the end
+of the name and the newline character <code>\n</code> is for formatting purposes.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; End the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Finally, we end the program here. Type it all into a file called
+"helloname.asm" and run it with the "run" script:</p>
+
+<div class="highlight highlight-source-shell"><pre>./run helloname</pre></div>
+
+<p>Enter your name when it prompts you, and you should see something like the
+following:</p>
+
+<pre><code>Please enter your name: Brian
+Hello, Brian
+!
+0
+</code></pre>
+
+<p>Okay, not quite what we were going for. Why is the exclamation point on its own
+line? To troubleshoot the problem, try returning the number of characters
+entered by the user as the program status code to see how many characters the
+OS thinks we entered. Change the following:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span></pre></div>
+
+<p>To this:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">]</span></pre></div>
+
+<p>This will report the number of characters we enter as the program status code
+so we can get some feedback.  Make the change, save the file, and rerun it. You
+should see something more like this:</p>
+
+<pre><code>Please enter your name: Brian
+Hello, Brian
+!
+6
+</code></pre>
+
+<p>6?! I only typed 5 letters! The thing is, the operating system is including the
+enter key pressed after typing the name. So for the name "Brian", the actual
+string we get back is "Brian\n".  That extra newline is garbage, it's not part
+of the data, it's just formatting.  We can prevent the newline from being
+written by subtracting 1 from the value of <em>name_len</em>. Even though the string
+will still have a newline after it (we can't stop the operating system from
+including it), we can ignore it by only paying attention to the first 5
+characters.</p>
+
+<p>Change the following section:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Store the number of characters entered by the user</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">],</span><span class="pl-en"> </span><span class="pl-v">rax</span></pre></div>
+
+<p>To this:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Store the number of characters entered by the user</span>
+<span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rax</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-s1">[</span><span class="pl-en">name_len</span><span class="pl-s1">],</span><span class="pl-en"> </span><span class="pl-v">rax</span></pre></div>
+
+<p><code>rax</code> contains the number of characters entered by the user. Before saving that
+value to name_len for later use, we now <em>decrement</em> that value. This means to
+subtract 1 from it. The instruction <code>dec rax</code> subtracts 1 from whatever
+value happens to be in <code>rax</code>. If you entered 6 characters including the enter
+key, this will change it to 5. If you entered 8, this will change it to 7.</p>
+
+<p>By subtracting 1 from the number of characters we write out, we effectively
+ignore the last character in the string by printing only the part of the string
+we care about.</p>
+
+<p>Make the change, save, and rerun. You should now get something like this:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">Please </span><span class="pl-k">enter</span><span class="pl-en"> your name: Brian</span>
+<span class="pl-en">Hello</span><span class="pl-s1">,</span><span class="pl-en"> Brian!</span>
+<span class="pl-c1">5</span></pre></div>
+
+<p>The formatting is no longer messed up. We're ignoring the last character in the
+string by printing one fewer than the number of characters the operating system
+returned. The trailing newline is not printed, so our exclamation point appears
+on the same line as the name.</p></div>

@@ -71,6 +71,10 @@ guides = [
     {
         'title': 'Run script',
         'name': '02-run-script'
+    },
+    {
+        'title': 'User input',
+        'name': '03-user-input'
     }
 ]
 
