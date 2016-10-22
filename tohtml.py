@@ -75,6 +75,10 @@ guides = [
     {
         'title': 'User input',
         'name': '03-user-input'
+    },
+    {
+        'title': 'Basic math',
+        'name': '04-basic-math'
     }
 ]
 
