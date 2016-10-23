@@ -34,12 +34,19 @@ layout: default
         margin: 0 auto;
         padding: 45px;
     }
+
+    .next-guide {
+        text-align: center;
+        font-weight: bold;
+    }
 </style>
 
 <div class="markdown-body">{{ body }}</div>
+
+<div class="next-guide">{{ next_guide }}</div>
 '''
 
-def process_guide(guide):
+def process_guide(guide, next_guide):
     readme = os.path.join(repo, guide['name'], 'README.md')
 
     with open(readme) as f:
@@ -58,7 +65,15 @@ def process_guide(guide):
     output_path = os.path.join(output_dir, guide['name'])
     os.makedirs(output_path, exist_ok=True)
 
-    output = guide_template.replace('{{ body }}', res.text.replace('<br>', ''))
+    body = res.text.replace('<br>', '')
+
+    next_guide_link = ''
+    if next_guide is not None:
+        next_guide_link = 'Next section: <a href="../{}">{}</a>'.format(
+                next_guide['name'], next_guide['title'])
+
+    output = guide_template.replace('{{ body }}', body) \
+                           .replace('{{ next_guide }}', next_guide_link)
 
     with open(os.path.join(output_path, 'index.html'), 'w') as f:
         f.write(output)
@@ -84,8 +99,12 @@ guides = [
 
 links = ''
 
-for guide in guides:
-    process_guide(guide)
+for i in range(len(guides)):
+    guide = guides[i]
+
+    next_guide = guides[i + 1] if i < len(guides) - 1 else None
+
+    process_guide(guide, next_guide)
     links += '<li><a href="{}">{}</a>'.format(guide['name'], guide['title'])
 
 with open(os.path.join(output_dir, 'index.html'), 'w') as f:
