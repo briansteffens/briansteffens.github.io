@@ -94,6 +94,10 @@ guides = [
     {
         'title': 'Basic math',
         'name': '04-basic-math'
+    },
+    {
+        'title': 'Conditional branching',
+        'name': '05-conditional-branching'
     }
 ]
 

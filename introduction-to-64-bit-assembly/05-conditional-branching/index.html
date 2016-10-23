@@ -1,0 +1,446 @@
+---
+layout: default
+---
+<link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
+
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+    }
+
+    .next-guide {
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
+
+<div class="markdown-body"><h1>Conditional Branching</h1>
+
+<p>So far our programs have been pretty simple. The instructions execute in
+sequence, one after another, until the end is reached and the program stops. In
+order to do more complicated things, we have to introduce conditional
+branching. Conditional branching just means choosing which code to execute
+based on the state of the program (usually the value of a register). Primarily,
+conditional branching is used to do variations of the following:</p>
+
+<ul>
+<li>Execute code only if a register or memory has a certain value</li>
+<li>Run the same code over and over (looping)</li>
+</ul>
+
+<p>Branching generally takes at least 2 instructions:</p>
+
+<ol>
+<li>First, a comparison instruction compares two values.</li>
+<li>Second, a jump instruction decides whether or not to jump to a particular
+instruction based on the result of the previous comparison.</li>
+</ol>
+
+<p>Here's a full example program that demonstrates a conditional branch. All it
+does is set <code>rbx</code> to a value, compare that value to the number 10, and print
+a different message depending on whether <code>rbx</code> was 10 or not.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+<span class="pl-c1">%define</span> <span class="pl-en">success </span><span class="pl-c1">0</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">newline </span><span class="pl-c1">10</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-c">; Message to be shown if rbx is equal to 10</span>
+<span class="pl-en">    msg_equal: db </span><span class="pl-s">"rbx is 10"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    msg_equal_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">msg_equal</span>
+
+<span class="pl-c">; Message to be shown if rbx is not equal to 10</span>
+<span class="pl-en">    msg_unequal: db </span><span class="pl-s">"rbx is not 10"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    msg_unequal_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">msg_unequal</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; Set the input value</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span>
+
+<span class="pl-c">; Compare the input value to 10</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span>
+
+<span class="pl-c">; Jump to the 'unequal:' label if rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">jne</span><span class="pl-en"> unequal</span>
+
+<span class="pl-c">; Print a message saying that rbx is equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-en">unequal:</span>
+
+<span class="pl-c">; Print a message saying that rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Exit the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>The high level overview of this program is:</p>
+
+<ol>
+<li>Set <code>rbx</code> to 7.</li>
+<li>Compare <code>rbx</code> to 10.</li>
+<li>Jump to <em>unequal:</em> if <code>rbx</code> is not equal to 10.</li>
+<li>Print the corresponding message.</li>
+<li>End the program.</li>
+</ol>
+
+<p>This is why it's called conditional <em>branching</em>. The first message,
+"rbx is 10", is only printed if <code>rbx</code> is actually 10. If it's not, that message
+is skipped. This means that different code executes depending on the result
+of the comparison.</p>
+
+<p>Now let's look at the program in more detail:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-c">; Message to be shown if rbx is equal to 10</span>
+<span class="pl-en">    msg_equal: db </span><span class="pl-s">"rbx is 10"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    msg_equal_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">msg_equal</span>
+
+<span class="pl-c">; Message to be shown if rbx is not equal to 10</span>
+<span class="pl-en">    msg_unequal: db </span><span class="pl-s">"rbx is not 10"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    msg_unequal_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">msg_unequal</span></pre></div>
+
+<p>This is where the output strings are declared, along with their accompanying
+character counts:</p>
+
+<ol>
+<li>
+<strong>msg_equal</strong> is what will be printed if <code>rbx</code> equals 10.</li>
+<li>
+<strong>msg_unequal</strong> is what will be printed if <code>rbx</code> does not equal 10.</li>
+</ol>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span></pre></div>
+
+<p>This is the beginning of the program code.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Set the input value</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span></pre></div>
+
+<p>Here is where we give <code>rbx</code> its value of 7, which will be compared against 10
+in the next instruction.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Compare the input value to 10</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span></pre></div>
+
+<p>This is the <em>cmp</em> instruction, which is short for "compare". This instruction
+compares two values. In this case, we're comparing the value of <code>rbx</code>
+against the integer 10. The possibilities are:</p>
+
+<ul>
+<li>
+<code>rbx</code> is greater than 10</li>
+<li>
+<code>rbx</code> is equal to 10</li>
+<li>
+<code>rbx</code> is less than 10</li>
+</ul>
+
+<p>This instruction does not act on the result of the comparison by itself, but
+it sets things up so the next instruction can.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Jump to the 'unequal:' label if rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">jne</span><span class="pl-en"> unequal</span></pre></div>
+
+<p>This is a conditional jump. Normally, code executes sequentially: one
+instruction after another. A jump interrupts the normal flow of code execution,
+<em>jumping</em> somewhere else instead of executing the next instruction.</p>
+
+<p>There are several different kinds of jumps. Some examples are given below:</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">Instruction</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">jmp</td>
+<td>Unconditional jump (always jump)</td>
+</tr>
+<tr>
+<td align="center">je</td>
+<td>Jump if equal</td>
+</tr>
+<tr>
+<td align="center">jne</td>
+<td>Jump if not equal</td>
+</tr>
+<tr>
+<td align="center">jl</td>
+<td>Jump if less than</td>
+</tr>
+<tr>
+<td align="center">jle</td>
+<td>Jump if less than or equal</td>
+</tr>
+<tr>
+<td align="center">jg</td>
+<td>Jump if greater than</td>
+</tr>
+<tr>
+<td align="center">jge</td>
+<td>Jump if greater than or equal</td>
+</tr>
+</tbody>
+</table>
+
+<p>In this case, we're using the <em>jne</em> instruction, which stands for "<strong>j</strong>ump if
+<strong>n</strong>ot <strong>e</strong>qual". The jump is performed conditionally, based on the result of
+the previous <em>cmp</em> instruction: if <code>rbx</code> is not equal to 10, execution will
+jump ahead to the <em>unequal:</em> label. If <code>rbx</code> is equal to 10, the jump is not
+performed.</p>
+
+<p>You may be wondering how the <em>jne</em> instruction acts on the outcome of the <em>cmp</em>
+instruction. The <em>cmp</em> instruction compares two values and then stores the
+result of that comparison in a special-purpose register called <code>rflags</code>. The
+conditional jump instructions use the state of <code>rflags</code> to decide whether or
+not to jump.</p>
+
+<p>So the <em>cmp</em> instruction writes to the <code>rflags</code> register, then conditional
+jump instructions like <em>jl</em> and <em>jge</em> use the values in <code>rflags</code> to decide
+whether to jump.</p>
+
+<p>In this case, because <code>rbx</code> is 7, and 7 is not equal to 10, the <em>jne</em>
+instruction will jump ahead to the <em>unequal:</em> label. If <code>rbx</code> was set to 10,
+it would not jump. In that case, execution would continue sequentially like
+normal.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Print a message saying that rbx is equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>This is the code that runs if <code>rbx</code> happened to be equal to 10. It prints out a
+message informing the user that <code>rbx</code> is equal to 10. With <code>rbx</code> set to 7, this
+code will be skipped.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">unequal:</span></pre></div>
+
+<p>This is called a label. A label lets you name a section of code so that it can
+be referred to elsewhere. Labels can be <em>jumped to</em>, meaning that you can tell
+the computer to run the first instruction after the specified label instead of
+running the next instruction in order like normal.</p>
+
+<p>This is where the <em>jne</em> instruction jumps to in the event that <code>rbx</code> is not
+equal to 10. The previous instructions will be skipped and execution will
+resume after this label.</p>
+
+<p>You may notice that this looks a lot like the <em>_start:</em> line in every program
+we've written so far. <em>_start:</em> is also an example of a label. What makes
+<em>_start:</em> unique is that when nasm assembles your program, it looks for a
+special label named <em>_start</em> for where the program begins.</p>
+
+<p>While <em>_start:</em> marks the beginning of the program, <em>unequal:</em> marks the
+beginning of the code which handles the situation where <code>rbx</code> is not equal to
+10.</p>
+
+<p><em>In higher-level languages, jumping is often referred to as <code>goto</code>, and you may
+have heard that <code>goto</code> is bad programming practice and should be avoided. In
+higher-level languages, that's mostly true: you should only use a <code>goto</code> in a
+few very specific situations. But this is assembly language, baby! There's
+no other game in town. This is the only way to implement conditionals and
+loops in assembly, so get your fill of <code>goto</code> here!</em></p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Print a message saying that rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>This is the code which runs when <code>rbx</code> is not equal to 10. It prints out a
+message saying something to that effect.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Exit the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Here is where the program ends. Type the previous program into a file called
+"conditional.asm" and run it. You should see the following output:</p>
+
+<pre><code>rbx is not 10
+</code></pre>
+
+<p>Success! Or is it? Try changing the line:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span></pre></div>
+
+<p>To this:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span></pre></div>
+
+<p>With <code>rbx</code> set to 10, this should change the result of the <em>cmp</em> instruction,
+which should in turn change the behavior of the <em>jne</em> instruction, causing the
+jump to <em>unequal:</em> not to happen. Run it and see what happens:</p>
+
+<pre><code>rbx is 10
+rbx is not 10
+</code></pre>
+
+<p>Whoops. Both messages printed. Let's step through the code and see what's going
+on.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span></pre></div>
+
+<p>First, <code>rbx</code> is set to 10.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span></pre></div>
+
+<p>Next, <code>rbx</code> is compared to 10. <code>rbx</code> is equal to 10.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-k">jne</span><span class="pl-en"> unequal</span></pre></div>
+
+<p>Here, execution skips ahead to the <em>unequal:</em> label if <code>rbx</code> is not equal
+to 10. Since it <em>is</em> equal to 10, the jump will not occur. Execution will
+continue to the next line sequentially.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Print a message saying that rbx is equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Here's the first message that printed: "rbx is 10". So far so good.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">unequal:</span>
+
+<span class="pl-c">; Print a message saying that rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>Here's where the second message is printed: "rbx is not 10". This is the
+erroneous message.</p>
+
+<p>And that's the problem: the <em>unequal:</em> code runs in both cases. If <code>rbx</code> is not
+equal to 10, the first message is skipped, printing only the second message.
+But if <code>rbx</code> is equal to 10, the second message is printed as well. Execution
+<em>falls through</em> from the first message to the second.</p>
+
+<p>To get around this, we need a second jump. After the first message is printed,
+we need to jump ahead, skipping the second message. That way, only one
+message will ever print. Take a look at the fixed program in its entirety:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+<span class="pl-c1">%define</span> <span class="pl-en">success </span><span class="pl-c1">0</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">newline </span><span class="pl-c1">10</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-c">; Message to be shown if rbx is equal to 10</span>
+<span class="pl-en">    msg_equal: db </span><span class="pl-s">"rbx is 10"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    msg_equal_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">msg_equal</span>
+
+<span class="pl-c">; Message to be shown if rbx is not equal to 10</span>
+<span class="pl-en">    msg_unequal: db </span><span class="pl-s">"rbx is not 10"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    msg_unequal_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">msg_unequal</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; Set the input value</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span>
+
+<span class="pl-c">; Compare the input value to 10</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span>
+
+<span class="pl-c">; Jump to the 'unequal:' label if rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">jne</span><span class="pl-en"> unequal</span>
+
+<span class="pl-c">; Print a message saying that rbx is equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_equal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Skip ahead to the done label</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> done</span>
+
+<span class="pl-en">unequal:</span>
+
+<span class="pl-c">; Print a message saying that rbx is not equal to 10</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> msg_unequal_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-en">done:</span>
+
+<span class="pl-c">; Exit the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> success</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+
+<p>It's almost identical. We've added a new <em>jmp</em> instruction and a new label
+called <em>done:</em>. Let's take a look at these in more detail:</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Skip ahead to the done label</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> done</span></pre></div>
+
+<p>After the first message, which is printed only when <code>rbx</code> equals 10, we come to
+this <em>unconditional jump</em> instruction. This instruction always jumps to the
+given label, regardless of any conditions. This causes the computer to skip
+the second message if it printed the first message.</p>
+
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">done:</span></pre></div>
+
+<p>This is the jump target for when the first message is finished printing.</p>
+
+<p>Make the changes above or create a new file and run it. Try with rbx set to a
+few different values. If <code>rbx</code> is 10, you should see:</p>
+
+<pre><code>rbx is 10
+</code></pre>
+
+<p>If it's not 10, you should see:</p>
+
+<pre><code>rbx is not 10
+</code></pre>
+
+<p>But you should never see both messages at once.</p></div>
+
+<div class="next-guide"></div>
