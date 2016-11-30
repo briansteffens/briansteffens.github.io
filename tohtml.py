@@ -98,6 +98,10 @@ guides = [
     {
         'title': 'Conditional branching',
         'name': '05-conditional-branching'
+    },
+    {
+        'title': 'Looping',
+        'name': '06-looping'
     }
 ]
 

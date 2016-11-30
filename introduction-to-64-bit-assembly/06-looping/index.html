@@ -1,0 +1,488 @@
+---
+layout: default
+---
+<link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
+
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+    }
+
+    .next-guide {
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
+
+<div class="markdown-body"><h1>Looping</h1>
+<p>We're going to write a program to calculate exponents. Before we can do that,
+we need to discuss looping.</p>
+<p>A loop is a series of instructions which can be executed repeatedly. When
+execution reaches the end, it jumps back to the beginning and runs the loop
+again. This continues until some criteria is reached which causes the loop to
+stop. Take a look at the following minimal example:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+
+<span class="pl-en">loop_start:</span>
+<span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> loop_start</span></pre></div>
+<p>This snippet starts by setting <code>rax</code> to 0. Then, it continually adds 2 to
+<code>rax</code>. Let's look at it in more detail:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span></pre></div>
+<p>Before the loop begins, the register <code>rax</code> is set to 0.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">loop_start:</span></pre></div>
+<p>This is a label, marking the start of the loop. We can jump to this label any
+time we want the loop to run again.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span></pre></div>
+<p>This is the body of the loop. This instruction is executed each time the loop
+runs. It adds 2 to the value of <code>rax</code>, so every time the loop runs, <code>rax</code> will
+be increased by 2. Since <code>rax</code> starts at 0, if the loop runs 10 times, <code>rax</code>
+will be set to 20 by the end.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> loop_start</span></pre></div>
+<p>This instruction causes the loop to start over. Every time this instruction
+is reached, the loop will start back over at the beginning. This will
+cause <code>add rax, 2</code> to run over and over again.</p>
+<p>There's just one problem with this loop: it never ends. This is what is known
+as an infinite loop, because it continues forever. If you were to run a
+program with this loop inside, that program would appear to freeze. The loop
+would run continually until the program or computer was forcibly halted.</p>
+<p>In order to be useful, a loop must have some termination criteria: some
+condition under which the loop ceases to repeat. Take a look at the following
+updated snippet:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+
+<span class="pl-en">loop_start:</span>
+<span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span>
+
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span>
+<span class="pl-en">    </span><span class="pl-k">jl</span><span class="pl-en"> loop_start</span></pre></div>
+<p>This is a bit different. <code>rax</code> still starts at 0, and 2 is still added to <code>rax</code>
+each time the loop runs. But now, instead of the <em>unconditional jump</em> at the
+end of the loop, there is now a <em>conditional jump</em>, which only repeats the loop
+if certain criteria are met.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span></pre></div>
+<p>This instruction compares the value of <code>rax</code> to 10. The possible results of
+this comparison are:</p>
+<ul>
+<li><code>rax</code> could be greater than 10</li>
+<li><code>rax</code> could be equal to 10</li>
+<li><code>rax</code> could be less than 10</li>
+</ul>
+<p>When this instruction runs, the results of the comparison will be stored in the
+<code>rflags</code> register. This instruction does not act on the result of the
+comparison by itself, it sets things up so the next instruction can.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">jl</span><span class="pl-en"> loop_start</span></pre></div>
+<p>This is a conditional jump. It only jumps to the given label <em>loop_start:</em>
+if <code>rax</code> is less than 10. If <code>rax</code> is greater than or equal to 10, the jump
+doesn't happen and the loop ends.</p>
+<p>There are several variants of the conditional jump instruction. The <em>jl</em>
+instruction above stands for "<em>j</em>ump if <em>l</em>ess than".</p>
+<p>Altogether, this snippet's behavior can be summarized as follows:</p>
+<ul>
+<li><code>rax</code> is set to its starting value of 0.</li>
+<li><code>rax</code> is less than 10, so the loop restarts.</li>
+<li><code>rax</code> is increased to 2.</li>
+<li><code>rax</code> is less than 10, so the loop restarts.</li>
+<li><code>rax</code> is increased to 4.</li>
+<li><code>rax</code> is less than 10, so the loop restarts.</li>
+<li><code>rax</code> is increased to 6.</li>
+<li><code>rax</code> is less than 10, so the loop restarts.</li>
+<li><code>rax</code> is increased to 8.</li>
+<li><code>rax</code> is less than 10, so the loop restarts.</li>
+<li><code>rax</code> is increased to 10.</li>
+<li><code>rax</code> is <strong>not</strong> less than 10, so the loop does not restart.</li>
+</ul>
+<p>The loop runs 5 times, adding 2 to <code>rax</code> each time, until <code>rax</code> reaches 10.</p>
+<h1>A basic loop with output</h1>
+<p>This small program is going to use a loop to print a line of text to the
+console over and over. Take a look at the following code:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">newline </span><span class="pl-c1">10</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-en">    output: db </span><span class="pl-s">"Greetings!"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    output_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">output</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; The number of times to print the text out</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span>
+
+<span class="pl-en">loop_start:</span>
+
+<span class="pl-c">; Print the text to the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> output</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> output_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Decrement the loop counter</span>
+<span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
+
+<span class="pl-c">; Continue the loop while rbx &gt; 0</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">jg</span><span class="pl-en"> loop_start</span>
+
+
+<span class="pl-c">; Exit the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>We're using <code>rbx</code> to keep track of how many times to print the text. Each time
+the loop runs, it:</p>
+<ol>
+<li>Prints the text out</li>
+<li>Subtracts 1 from the loop counter <code>rbx</code></li>
+<li>Starts over if <code>rbx</code> is still greater than 0</li>
+</ol>
+<p>In closer detail:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-en">    output: db </span><span class="pl-s">"Greetings!"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    output_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">output</span></pre></div>
+<p>We've added a data section containing two values:</p>
+<ol>
+<li><strong>output</strong> - the string to print to the console</li>
+<li><strong>output_len</strong> - the number of characters in the output string</li>
+</ol>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; The number of times to print the text out</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span></pre></div>
+<p>This sets the number of times the loop will run and keeps track of when to
+stop repeating the loop.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">loop_start:</span></pre></div>
+<p>This is the beginning of the loop.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Print the text to the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> output</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> output_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>This is the body of the loop. Here we print the string <em>output</em> to the console.
+This will be executed repeatedly each time the loop runs.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Decrement the loop counter</span>
+<span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rbx</span></pre></div>
+<p>Now the loop counter in <code>rbx</code> has to be decremented to keep track of how many
+times the loop has run. Each time the loop runs, we subtract 1 from <code>rbx</code>. So
+at any point during the program, <code>rbx</code> contains the number of iterations left
+to run before the loop will be finished.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Continue the loop while rbx &gt; 0</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">jg</span><span class="pl-en"> loop_start</span></pre></div>
+<p>Here we check the loop counter against 0. If <code>rbx</code> is greater than 0, the loop
+continues. If <code>rbx</code> has reached 0, the loop ends.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Exit the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>At this point, the loop will have run 7 times and then stopped. The program
+exits.</p>
+<p>Type the program above into a file called "printspam.asm" and run it. You
+should see the text "Greetings!" written out 7 times. Try changing the printed
+text to something else. Also try changing the initial value of <code>rbx</code> from 7 to
+something else. Whatever value <code>rbx</code> starts with is the number of times the
+string will be printed.</p>
+<p>However, there's actually a bug in this program: if you set <code>rbx</code> to 0, the
+string will still be printed once. This is because we're using the wrong loop
+style for the job. The loop in this program is called a <em>do..while</em> loop, which
+works like this:</p>
+<ol>
+<li>Print the output string</li>
+<li>Check if the loop should end yet and start over if not</li>
+</ol>
+<p>Notice that the test to decide whether the loop should end doesn't happen until
+the end of the loop, after the string has already been printed. This means that
+the loop will always run at least one time, since we don't check if it should
+keep going until after it has already run. No matter what value you give to
+<code>rbx</code>, it will always print the string at least one time.</p>
+<p>This style of loop is called a "do..while" loop. The conditional check happens
+at the end of the loop body, so the loop always runs at least once no matter
+what the result of the conditional check is.</p>
+<p>We can solve this problem by using a <em>while</em> loop. A <em>while</em> loop is another
+style of loop where the conditional check happens at the beginning of the loop,
+before the print operation. The loop will be reorganized to look more like
+this:</p>
+<ol>
+<li>Check if the loop should end yet and jump out of the loop if so</li>
+<li>Print the output string</li>
+<li>Go back to step 1</li>
+</ol>
+<p>By checking to see if the loop should end at the very beginning of the loop,
+we prevent the output string from printing at all if <code>rbx</code> is 0 or a negative
+number.</p>
+<p>Take a look at the updated program:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_write </span><span class="pl-c1">1</span>
+<span class="pl-c1">%define</span> <span class="pl-en">stdout </span><span class="pl-c1">1</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+
+<span class="pl-c1">%define</span> <span class="pl-en">newline </span><span class="pl-c1">10</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .data</span>
+
+<span class="pl-en">    output: db </span><span class="pl-s">"Greetings!"</span><span class="pl-s1">,</span><span class="pl-en"> newline</span>
+<span class="pl-en">    output_len: equ $</span><span class="pl-s1">-</span><span class="pl-en">output</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; The number of times to print the text out</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+
+<span class="pl-en">loop_start:</span>
+
+<span class="pl-c">; Check if the loop should end yet</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">jle</span><span class="pl-en"> loop_stop</span>
+
+<span class="pl-c">; Print the text to the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> output</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> output_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span>
+
+<span class="pl-c">; Decrement the loop counter</span>
+<span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
+
+<span class="pl-c">; Run the loop again</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> loop_start</span>
+
+<span class="pl-en">loop_stop:</span>
+
+
+<span class="pl-c">; Exit the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>Now the conditional check happens at the beginning of the loop. Let's go over
+the changes in more detail:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; The number of times to print the text out</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span></pre></div>
+<p><code>rbx</code> now starts at 0. The string should never be printed if the counter starts
+at 0.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">loop_start:</span></pre></div>
+<p>This is the start of the loop.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Check if the loop should end yet</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+<span class="pl-en">    </span><span class="pl-k">jle</span><span class="pl-en"> loop_stop</span></pre></div>
+<p>At the very beginning of each loop iteration, we check to see if the loop
+should end yet.</p>
+<p>The <em>cmp</em> instruction is the same as before, but we're using a different form
+of conditional jump. <em>jle</em> stands for "<strong>j</strong>ump if <strong>l</strong>ess than or <strong>e</strong>qual
+to". So once <code>rbx</code> hits 0, we jump out of the loop to the <em>loop_stop:</em> label.</p>
+<p>As long as <code>rbx</code> is greater than 0, we run the loop body:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Print the text to the console</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_write</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> stdout</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rsi</span><span class="pl-s1">,</span><span class="pl-en"> output</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> output_len</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>The output string is printed to the console.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Decrement the loop counter</span>
+<span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rbx</span></pre></div>
+<p>The loop counter is decremented, to keep track of the number of times the loop
+has run.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Run the loop again</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> loop_start</span></pre></div>
+<p>Here we jump back to the start of the loop. This is an unconditional jump,
+meaning it jumps no matter what. Since we now check if the loop should continue
+at the beginning of the loop, we don't need to check it here at the end.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">loop_stop:</span></pre></div>
+<p>This is where we jump when the loop ends. Once <code>rbx</code> hits 0, the <em>jle</em>
+instruction will jump here, breaking out of the loop.</p>
+<p>Type the new program into a file (or edit the old one) and run it again. You
+should see that the bug has been fixed. If <code>rbx</code> is set to 0, the string
+never prints. If <code>rbx</code> is set to a positive integer (5, 7, etc), the string is
+printed that number of times.</p>
+<h1>Exponents</h1>
+<p>Now we're going to write a program to calculate exponents. We want to be able
+to take an input like 2 and a power like 3 and calculate the result. With
+those example values, we should get <code>2 ^ 3 = 8</code>. <code>2 ^ 3</code> is the same as
+<code>2 * 2 * 2</code>. So we can calculate this by repeatedly multiplying a value against
+itself. To do this, we'll need to use a loop similar to the ones introduced
+above.</p>
+<p>Take a look at the following program:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
+
+<span class="pl-c1">section</span><span class="pl-en"> .text</span>
+
+<span class="pl-c1">global</span> <span class="pl-en">_start</span>
+<span class="pl-en">_start:</span>
+
+<span class="pl-c">; Starting values: calculating 2 ^ 3</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rcx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span>
+
+<span class="pl-c">; This stores the result, which starts as 1</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">1</span>
+
+<span class="pl-en">loop_start:</span>
+
+<span class="pl-c">; Compare rcx to 0</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rcx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span>
+
+<span class="pl-c">; Break loop once rcx reaches 0</span>
+<span class="pl-en">    </span><span class="pl-k">jle</span><span class="pl-en"> loop_stop</span>
+
+<span class="pl-c">; Multiply rbx by rax, storing the result each time in rbx</span>
+<span class="pl-en">    </span><span class="pl-k">imul</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
+
+<span class="pl-c">; Decrement rcx</span>
+<span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rcx</span>
+
+<span class="pl-c">; Start the loop again</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> loop_start</span>
+
+<span class="pl-en">loop_stop:</span>
+
+<span class="pl-c">; End the program</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>Let's break it down line-by-line:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rcx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span></pre></div>
+<p>These are the "inputs" of the program. Since they're hard-coded into the
+source, they're not technically inputs, but they are the values we'll be
+operating on. Since we're trying to calculate <code>2 ^ 3</code>, both values need to be
+in registers so we can work with them.</p>
+<p>The basic idea here is we're going to have a loop which multiplies the value
+in <code>rbx</code> by itself. <code>rcx</code> will keep track of how many times this multiplication
+still needs to occur.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">1</span></pre></div>
+<p><code>rax</code> will store the running total. We're going to multiply the value in <code>rbx</code>
+(2) against the value in <code>rax</code> the number of times specified by <code>rcx</code> (3). So
+we start with <code>rax</code> set to 1, since <code>1 * 2 * 2 * 2 = 2 ^ 3</code>.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">loop_start:</span></pre></div>
+<p>This marks the beginning of the loop. The loop body will be run 3 times.
+Execution will jump back to this point repeatedly, until <code>rcx</code> reaches 0 and
+the final answer is stored in <code>rax</code>.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Compare rcx to 0</span>
+<span class="pl-en">    </span><span class="pl-k">cmp</span><span class="pl-en"> </span><span class="pl-v">rcx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span></pre></div>
+<p>We start by checking if the exponent <code>rcx</code> has reached 0. Since <code>rcx</code> might
+start at 0 (<code>3 ^ 0 = 1</code>), we have to do this check before running the loop.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Break loop once rcx reaches 0</span>
+<span class="pl-en">    </span><span class="pl-k">jle</span><span class="pl-en"> loop_stop</span></pre></div>
+<p>If <code>rcx</code> has reached 0, we end the loop by jumping out of it to the label
+<em>loop_stop:</em>. This means that the loop will continue running until <code>rcx</code>
+reaches 0.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Multiply rbx by rax, storing the result each time in rbx</span>
+<span class="pl-en">    </span><span class="pl-k">imul</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span></pre></div>
+<p>This is where the actual multiplication happens. Each time the loop runs, we
+multiply the running total stored in <code>rax</code> by the base number in <code>rbx</code>.</p>
+<p>Each time a loop runs is called an <em>iteration</em>. Take a look at the following
+table, which lists each iteration and shows how <code>rax</code> increases each time as
+it's multiplied by 2:</p>
+<table>
+<thead>
+<tr>
+<th> Iteration </th>
+<th> rax starting value </th>
+<th> rax ending value </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>     1     </td>
+<td>         1          </td>
+<td>        2         </td>
+</tr>
+<tr>
+<td>     2     </td>
+<td>         2          </td>
+<td>        4         </td>
+</tr>
+<tr>
+<td>     3     </td>
+<td>         4          </td>
+<td>        8         </td>
+</tr></tbody></table>
+<p>The loop runs three times, each time multiplying the value in <code>rax</code> by 2.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">dec</span><span class="pl-en"> </span><span class="pl-v">rcx</span></pre></div>
+<p>We don't want the loop to run forever, so we need a way of keeping track of how
+many times it's been run. We start the program by setting <code>rcx</code> to the value of
+3 as that's how many times we want to run the loop. So each time the loop
+runs, we need to reduce the value of <code>rcx</code> by 1. That's what the <em>dec</em>
+instruction does: it subtracts 1 from whatever register you give it. This is
+also known as decrementing.</p>
+<p><em>Note: We could have also used the <strong>sub</strong> instruction like this:
+<code>sub rcx, 1</code> and it would have worked the same. <code>dec rcx</code> and <code>sub rcx, 1</code>
+are functionally equivalent.</em></p>
+<p>See the following table which lists each iteration, including the value of
+<code>rcx</code> at the end of the loop (after the <code>dec rcx</code> line) for each one:</p>
+<table>
+<thead>
+<tr>
+<th> Iteration </th>
+<th> rax ending value </th>
+<th> rcx ending value </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>     1     </td>
+<td>        2         </td>
+<td>        2         </td>
+</tr>
+<tr>
+<td>     2     </td>
+<td>        4         </td>
+<td>        1         </td>
+</tr>
+<tr>
+<td>     3     </td>
+<td>        8         </td>
+<td>        0         </td>
+</tr></tbody></table>
+<p>For the first two iterations, <code>rcx</code> is greater than 0. The loop continues and
+<code>rax</code> is continually multiplied by 2. On the third iteration, <code>rcx</code> reaches 0
+and the loop stops. At this point, <code>rax</code> is left with its final value of 8,
+which is the result of <code>2 ^ 3</code>.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Start the loop again</span>
+<span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> loop_start</span></pre></div>
+<p>This is the end of the loop. We jump back to the beginning to keep the loop
+running.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">loop_stop:</span></pre></div>
+<p>This is the label we jump to in order to end/break the loop. Once <code>rcx</code> hits
+0, the conditional jump instruction <em>jle</em> will jump here, breaking out of the
+loop and preventing it from running again.</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
+<span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
+<p>When the loop ends, the result will be stored in <code>rax</code> (and it should be 8).
+In order to return the value as a status exit code, it needs to be in <code>rdi</code>, so
+we move it there and then end the program. 8 gets returned as the status code.</p>
+<p>Type the program into a file called "exponent.asm" and run it with the "run"
+script:</p>
+<div class="highlight highlight-source-shell"><pre>./run exponent</pre></div>
+<p>You should see 8 returned on the console. Try changing the values of <code>rbx</code> and
+<code>rcx</code> to calculate different exponents.</p>
+<p>For example, try <code>7 ^ 3</code>. Modify the lines at the beginning that set the
+inputs like this:</p>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span>
+<span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rcx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span></pre></div>
+<p>This should give us <code>7 * 7 * 7 = 343</code>, right? Wrong! System status codes use
+only one byte of memory, which means they can only store a number up to 255.
+When we try to return 343 in a value that can only be a maximum of 255, the
+value overflows since it can't go any higher. Instead of returning 343, it
+returns 87, which is <code>343 - 256</code>. This limitation makes status codes a bad way
+to get this kind of output from a program. Eventually, we'll work through
+converting numbers of (virtually) any size into ASCII strings and printing
+those out, but we're not quite there yet.</p></div>
+
+<div class="next-guide"></div>

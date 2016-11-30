@@ -19,15 +19,11 @@ layout: default
 </style>
 
 <div class="markdown-body"><h1>Basic Math</h1>
-
 <p>In this section, we'll go over using assembly language to perform some basic
 math operations like addition and subtraction.</p>
-
 <h1>A basic program template</h1>
-
 <p>Here is the basic program we'll be modifying to try out some different math
 operations:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
 
 <span class="pl-c1">section</span><span class="pl-en"> .text</span>
@@ -41,51 +37,36 @@ operations:</p>
 <span class="pl-c">; End the program</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>All this does is exit the program, returning 7 as the status code. Type this
 code into a new file called "math.asm". Use the "run" script from the previous
 section to assemble, link, and run the new "math.asm" program:</p>
-
 <div class="highlight highlight-source-shell"><pre>./run math</pre></div>
-
 <p>You should see the number 7 written out to the console. At the end of this
 program, whatever value is left in the <code>rdi</code> register will be returned as the
 status code and displayed on the console. This is how we'll see the results of
 the math operations in this section.</p>
-
 <p><em>Note: the status code can only be an integer from 0 to 255. If you try to
 return negative numbers or numbers larger than 255 you'll get weird results.</em></p>
-
 <h1>Addition</h1>
-
 <p>Addition is performed using the <em>add</em> instruction. It takes 2 operands. It adds
 the value of the second operand to the first operand. Take a look at this
 example:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span></pre></div>
-
 <p>This adds the number 3 to whatever value is stored in <code>rbx</code>. The result of the
 operation is stored in <code>rbx</code>. So, if <code>rbx</code> is set to 5 before this instruction
 executes, it will be set to 8 after this instruction executes (5 + 3 = 8).</p>
-
 <p>In this instruction, the value 3 is called an <em>immediate</em>. This means it's a
 literal value encoded directly into the instruction. Unlike a register or
 memory address, which refer to storage locations that could have any value,
 an immediate is a fixed value that never changes.</p>
-
 <p>You can also add two registers together:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span></pre></div>
-
 <p>This adds the values of <code>rax</code> and <code>rbx</code> together and stores the result in
 <code>rax</code>.</p>
-
 <p>If <code>rax</code> was 2 and <code>rbx</code> was 4, this instruction would change <code>rax</code> to 6
 (2 + 4 = 6). <code>rbx</code> would not be changed.</p>
-
 <p>Now let's work a few <em>add</em> instructions into the basic program structure from
 above:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
 
 <span class="pl-c1">section</span><span class="pl-en"> .text</span>
@@ -109,65 +90,44 @@ above:</p>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>Line-by-line:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span></pre></div>
-
 <p>The <code>rbx</code> register is undefined at the start of the program. It's <em>probably</em>
 0, but it's usually considered best practice to avoid making assumptions about
 the state of registers unless we set them ourselves. So, we start by giving
 <code>rbx</code> a value of 2.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span></pre></div>
-
 <p>Now we add 3 to the value in <code>rbx</code>, which was previously set to 2. After this
 instruction executes, the value of <code>rbx</code> should be 5.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">4</span></pre></div>
-
 <p>Now we set <code>rax</code> to the value 4. This is to demonstrate adding two registers
 together in the next instruction.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span></pre></div>
-
 <p>This adds the two registers together: <code>rax</code>, which is currently 4, will be
 added to <code>rbx</code>, which is currently 5. After this instruction executes, the
 result (9) will be stored in <code>rbx</code>.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>To return the value in <code>rbx</code>, we have to move it into <code>rdi</code> before performing
 the <em>sys_exit</em> system call. <em>sys_exit</em> returns the value in <code>rdi</code> as the exit
 status code. In order to see the value in <code>rbx</code>, we have to copy it to <code>rdi</code>
 before exiting.</p>
-
 <p>Type the program above into the "math.asm" file and run it:</p>
-
 <div class="highlight highlight-source-shell"><pre>./run math</pre></div>
-
 <p>You should see the value "9" written out to the console.</p>
-
 <p>Try changing the values around a bit and seeing how it responds.</p>
-
 <h1>Subtraction</h1>
-
 <p>Subtraction works much like addition. To subtract, we use the <em>sub</em>
 instruction. Like the <em>add</em> instruction, it takes 2 operands. It subtracts
 the value of the second operand from the value of the first operand and stores
 the result in the first operand.</p>
-
 <p>Here's an example:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">10</span>
 <span class="pl-en">    </span><span class="pl-k">sub</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">7</span></pre></div>
-
 <p>This code snippet starts by setting <code>rbx</code> to a value of 10. Then we subtract 7
 from that value, leaving <code>rbx</code> with a value of 3. Try working this into the
 program above:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
 
 <span class="pl-c1">section</span><span class="pl-en"> .text</span>
@@ -192,41 +152,28 @@ program above:</p>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>Let's go through the changed lines one at a time:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Set rbx to 5</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">5</span></pre></div>
-
 <p>We start by setting <code>rbx</code> to 5.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Add 3 to rbx</span>
 <span class="pl-en">    </span><span class="pl-k">add</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span></pre></div>
-
 <p>Next, we add 3 to <code>rbx</code>. After this instruction executes, <code>rbx</code> should be 8
 (5 + 3).</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Set rax to 2</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span></pre></div>
-
 <p>Now we set <code>rax</code> to a value of 2.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Subtract rax from rbx twice</span>
 <span class="pl-en">    </span><span class="pl-k">sub</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
 <span class="pl-en">    </span><span class="pl-k">sub</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span></pre></div>
-
 <p>Here we subtract the value in <code>rax</code> from the value in <code>rbx</code> two times. <code>rbx</code>
 starts at 8, so <code>8 - 2 - 2 = 4</code>. After these instructions complete, <code>rbx</code>
 should be set to 4.</p>
-
 <p>Make these edits and re-run the program. Again, try changing some of the values
 around and seeing how the output of the program responds.</p>
-
 <h1>Multiplication</h1>
-
 <p>Multiplication works similarly. Noticing a pattern here? We can multiply values
 with the <em>imul</em> instruction. Modify "math.asm" to look like this:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
 
 <span class="pl-c1">section</span><span class="pl-en"> .text</span>
@@ -247,88 +194,68 @@ with the <em>imul</em> instruction. Modify "math.asm" to look like this:</p>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>See if you can work out what value this program will return. Once you have your
 guess, take a look at the breakdown:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Set rbx to 3</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">3</span></pre></div>
-
 <p>We start by setting <code>rbx</code> to an initial value of 3.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Multiply rbx by itself</span>
 <span class="pl-en">    </span><span class="pl-k">imul</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rbx</span></pre></div>
-
 <p>Next we multiply <code>rbx</code> by itself. 3 * 3 = 9, so this instruction will set <code>rbx</code>
 to 9.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Double the value in rbx</span>
 <span class="pl-en">    </span><span class="pl-k">imul</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">2</span></pre></div>
-
 <p>Finally, we multiply the value in <code>rbx</code> by 2, doubling it. The result is 18.</p>
-
 <p>Again, try experimenting with this instruction. Try combining addition,
 subtraction, and multiplication in the same program.</p>
-
 <h1>Division</h1>
-
 <p>Division works a bit differently. <em>add</em>, <em>sub</em>, and <em>imul</em> are pretty flexible,
 in that they can operate on basically any combination of registers and/or
 immediates. When it comes to the <em>idiv</em> operation, things are a bit more
 restricted.</p>
-
 <p>First, let's define some terms. In division, a <em>dividend</em> is divided by a
 <em>divisor</em>, yielding a <em>result</em> and a <em>quotient</em> (or remainder):</p>
-
 <table>
 <thead>
 <tr>
-<th>Expression</th>
-<th>Dividend</th>
-<th>Divisor</th>
-<th>Result</th>
-<th>Quotient (remainder)</th>
+<th> Expression       </th>
+<th> Dividend </th>
+<th> Divisor </th>
+<th> Result </th>
+<th> Quotient (remainder) </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>14 / 3 = 4 r 2</td>
-<td>14</td>
-<td>3</td>
-<td>4</td>
-<td>2</td>
+<td> 14 / 3 = 4 r 2   </td>
+<td> 14       </td>
+<td> 3       </td>
+<td> 4      </td>
+<td> 2                    </td>
 </tr>
 <tr>
-<td>100 / 13 = 7 r 9</td>
-<td>100</td>
-<td>13</td>
-<td>7</td>
-<td>9</td>
-</tr>
-</tbody>
-</table>
-
+<td> 100 / 13 = 7 r 9 </td>
+<td> 100      </td>
+<td> 13      </td>
+<td> 7      </td>
+<td> 9                    </td>
+</tr></tbody></table>
 <p>When using the <em>idiv</em> instruction, the dividend is always assumed to be stored
 in <code>rdx:rax</code>. This is a new notation. <code>rdx:rax</code> means that the value is spread
 across two registers: <code>rdx</code> and <code>rax</code>. The purpose of this is to allow the
 division of very large numbers that don't fit into a single register.</p>
-
 <p>For now, we have no need to use both registers, so we can keep things simple
 by just using <code>rax</code>. However, it's important to realize what's going on.
 Whenever we divide a value in <code>rax</code>, we should make sure that <code>rdx</code> is
 clear (set to 0) so that it doesn't interfere with the division operation. If
 <code>rdx</code> has data in it, it will be included in the division operation and may
 produce unexpected results or errors.</p>
-
 <p>A further limitation of the <em>idiv</em> instruction is that it can't divide by an
 immediate value. This means that the divisor must first be loaded into a
 register.</p>
-
 <p><em>idiv</em> stores the result of the operation in <code>rax</code> and the quotient (remainder)
 in <code>rdx</code>.</p>
-
 <p>Here's a new example program which demonstrates 100 / 13:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">sys_exit </span><span class="pl-c1">60</span>
 
 <span class="pl-c1">section</span><span class="pl-en"> .text</span>
@@ -352,56 +279,40 @@ in <code>rdx</code>.</p>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>This divides 100 by 13 and returns the result: 7. In more detail:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Set rax to 100 (this is the dividend)</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">100</span></pre></div>
-
 <p>We're going to divide 100 by 13. 100 goes in <code>rax</code>, since the <em>idiv</em>
 instruction doesn't let us pick what to use as the dividend.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Clear rdx so it doesn't interfere</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0</span></pre></div>
-
 <p>We don't need the added space of the second register to help store the
 dividend, so we set it to 0 so that it doesn't interfere with the operation.</p>
-
 <p><em>Note: 'xor rdx, rdx' is a faster way to set a register to 0. We'll explain it
 more in a later section about binary operations.</em></p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Set divisor to 13</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rbx</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">13</span></pre></div>
-
 <p>The divisor can't be an immediate value, it must be a register. So in order
 to divide by 13, we first have to load that value into a register.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; Perform the division</span>
 <span class="pl-en">    </span><span class="pl-k">idiv</span><span class="pl-en"> </span><span class="pl-v">rbx</span></pre></div>
-
 <p>Here the division operation is performed. The value in <code>rdx:rax</code> is divided
 by the value in <code>rbx</code>. The result is placed in <code>rax</code> and the remainder is
 placed in <code>rdx</code>.</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; End the program, returning the division result</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rax</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>Here we return the result of the division instruction.</p>
-
 <p>Type this program in and run it. You should get a result of 7. Next, verify
 the remainder. Modify the end of the program to return the remainder instead
 of the result:</p>
-
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c">; End the program, returning the division remainder</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rdi</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-v">rdx</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">rax</span><span class="pl-s1">,</span><span class="pl-en"> sys_exit</span>
 <span class="pl-en">    </span><span class="pl-k">syscall</span></pre></div>
-
 <p>Run it again, and you should see 9 printed to the console. 100 divided by 13
 is 7, with a remainder of 9.</p>
-
 <p>Try combining all of these instructions in various ways until you're
 comfortable with them.</p></div>
 
