@@ -4,11 +4,13 @@ import os
 import sys
 import requests
 
-repo = 'repo'
-endpoint = 'https://api.github.com/'
-output_dir = 'introduction-to-64-bit-assembly'
 
-index_template = '''---
+guide_repo = 'repo'
+endpoint = 'https://api.github.com/'
+guide_output_dir = 'introduction-to-64-bit-assembly'
+
+
+guide_index_template = '''---
 layout: default
 title: Introduction to 64-bit Assembly Language
 ---
@@ -21,7 +23,8 @@ title: Introduction to 64-bit Assembly Language
 <ol>{}</ol>
 '''
 
-guide_template = '''---
+
+post_template = '''---
 layout: default
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
@@ -42,30 +45,49 @@ layout: default
 </style>
 
 <div class="markdown-body">{{ body }}</div>
-
-<div class="next-guide">{{ next_guide }}</div>
 '''
 
-def process_guide(guide, next_guide):
-    readme = os.path.join(repo, guide['name'], 'README.md')
 
-    with open(readme) as f:
-        source = f.read()
+guide_template = post_template + \
+        '\n\n<div class="next-guide">{{ next_guide }}</div>'
 
+
+def convert_markdown(source):
     res = requests.post(endpoint + 'markdown', json={
         "text": source,
         "mode": "gfm",
-        "context": "briansteffens/" + repo
+        "context": "briansteffens/" + guide_repo
     })
 
     if res.status_code != 200:
         print('API error: {}'.format(res.status_code))
         sys.exit(2)
 
-    output_path = os.path.join(output_dir, guide['name'])
-    os.makedirs(output_path, exist_ok=True)
+    return res.text.replace('<br>', '')
 
-    body = res.text.replace('<br>', '')
+
+def process_post(source_fn, destination_fn):
+    with open(source_fn) as f:
+        body = convert_markdown(f.read())
+
+    output = post_template.replace('{{ body }}', body)
+
+    with open(destination_fn, 'w') as f:
+        f.write(output)
+
+
+process_post('blog/from-math-to-machine/post.md',
+             '_posts/2017-02-17-from-math-to-machine.md')
+
+
+def process_guide(guide, next_guide):
+    readme = os.path.join(guide_repo, guide['name'], 'README.md')
+
+    with open(readme) as f:
+        body = convert_markdown(f.read())
+
+    output_path = os.path.join(guide_output_dir, guide['name'])
+    os.makedirs(output_path, exist_ok=True)
 
     next_guide_link = ''
     if next_guide is not None:
@@ -77,6 +99,7 @@ def process_guide(guide, next_guide):
 
     with open(os.path.join(output_path, 'index.html'), 'w') as f:
         f.write(output)
+
 
 guides = [
     {
@@ -105,15 +128,15 @@ guides = [
     }
 ]
 
-links = ''
-
-for i in range(len(guides)):
-    guide = guides[i]
-
-    next_guide = guides[i + 1] if i < len(guides) - 1 else None
-
-    process_guide(guide, next_guide)
-    links += '<li><a href="{}">{}</a>'.format(guide['name'], guide['title'])
-
-with open(os.path.join(output_dir, 'index.html'), 'w') as f:
-    f.write(index_template.format(links))
+#links = ''
+#
+#for i in range(len(guides)):
+#    guide = guides[i]
+#
+#    next_guide = guides[i + 1] if i < len(guides) - 1 else None
+#
+#    process_guide(guide, next_guide)
+#    links += '<li><a href="{}">{}</a>'.format(guide['name'], guide['title'])
+#
+#with open(os.path.join(guide_output_dir, 'index.html'), 'w') as f:
+#    f.write(guide_index_template.format(links))

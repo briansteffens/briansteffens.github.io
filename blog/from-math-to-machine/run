@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+
+case "$1" in
+    asm)
+        nasm -f elf64 factorial.asm
+        ld factorial.o
+        ./a.out
+        echo $?
+        ;;
+    c)
+        gcc factorial.c
+        ./a.out
+        echo $?
+        ;;
+    haskell)
+        ghc Factorial.hs
+        ./Factorial
+        echo $?
+        ;;
+esac
