@@ -86,7 +86,10 @@ case of 1.
 
 Just like there are lots of ways to describe something mathematically, there
 are also lots of ways to describe things to computers. Let's start with
-Haskell, which can resemble math in some important ways.
+Haskell, which among other useful features, happens to have a pretty cool
+looking logo:
+
+<img src="/blog/from-math-to-machine/haskell-logo.svg" />
 
 Haskell is a purely functional language. In broad terms, this means that
 instead of telling the computer *what to do*, a Haskell program tells the
@@ -101,87 +104,90 @@ it:
 
 ```haskell
 factorial :: Int -> Int
-factorial 0 = 1
-factorial n = n * factorial (n - 1)
+factorial n = product [1..n]
 ```
 
-You should see some similarities between the Haskell definition of a factorial
-and the math definition given earlier. Here it is if you don't feel like
-scrolling:
+If you haven't played around with functional languages yet, this probably looks
+pretty strange.
 
-```
-0! = 1
-n! = n * (n - 1)!
-```
-
-In the math definition, the ```!``` character represents the factorial function
-and appears after the number. For example: ```0!```, ```n!```, and
-```(n - 1)!```.
-
-In the Haskell version, the word *factorial* is used in place of the
-```!``` character and it appears before the number instead of after. For
-example: ```factorial 0```, ```factorial n```, and ```factorial (n - 1)```.
-
-The Haskell version is also a bit more specific about the types of values it
-accepts. The first line specifies that *factorial* is a function which takes
-an integer and returns another integer. Here's an oddly-formatted version of
-that first line, spaced out so you can see roughly which parts of the syntax
-mean what:
+The first line says that *factorial* is a function which takes an integer and
+returns another integer. Here's an oddly-formatted version of that first line,
+spaced out so you can see roughly which parts of the syntax mean what:
 
 ```haskell
 -- factorial is a function which takes an integer and returns another integer
 factorial            ::                     Int          ->             Int
 ```
 
-Haskell functions support a feature called pattern matching. When this
-function is called, it walks down the patterns until it finds one
-that the input parameter matches. So if *factorial* is called with a 0, as in
-```factorial 0```, that matches the first pattern:
+This first line is technically optional but it's usually good practice to
+include it. Haskell is pretty smart so it can actually figure out type
+signatures on its own most of the time, but it's still useful to document the
+function signature for other programmers or your future self.
+
+The second line defines the function body, which can be read as "the factorial
+of n is equal to the product of all integers from 1 to n". Here's another
+spaced out version to show which parts of the syntax match roughly:
 
 ```haskell
-factorial 0 = 1
+-- The factorial of n is equal to the product of all integers from 1 to n
+       factorial    n      =          product                     [1 .. n]
 ```
 
-In this case, the function simply returns the value 1 without doing any
-calculations.
+Notice we're not telling Haskell how to calculate a factorial, we're defining
+what a factorial is. This is one of the more important differences between
+functional languages and imperative languages.
 
-If *factorial* is called with a number other than 0, like in ```factorial 5```,
-the first pattern doesn't match. Instead, it will fall through to the next
-pattern, which matches anything and binds that value to the name *n*:
+Let's break this definition down further. When this function is called with
+some number *n*, the part after the equal sign is evaluated and returned:
 
 ```haskell
-factorial n = n * factorial (n - 1)
+product [1..n]
 ```
 
-This pattern takes the value for ```n```, multiplies it by the factorial of
-```n - 1```, and returns the result.
+First, let's look at the part in square brackets:
 
-Notice that just like in the math definition, this is a recursive definition.
-The *factorial* function calls itself to get the factorial of ```n - 1```. The
-function then in turn calls itself again, and on and on, until the base
-case is reached, at which point the results begin to bubble back up.
+```haskell
+[1..n]
+```
 
-Since this is Haskell, we don't have to tell the computer how to solve these
-definitions, we just have to provide them, and the compiler will sort it all
-out.
+This is a list range. A list in Haskell is kind of like an array in other
+languages. That is, it's an ordered collection of values, all with the same
+type. You can have lists of ints, floats, strings, custom types, or even lists
+of lists.
 
-Here's what happens in order (logically, that is):
+The ```..``` makes this particular list a range. This creates a list of all
+integers from 1 to *n*. So if *n* is equal to 5, this will make a list with 5
+values:
 
-1. ```factorial 5``` calls ```factorial (5 - 1)```
-2. ```factorial 4``` calls ```factorial (4 - 1)```
-3. ```factorial 3``` calls ```factorial (3 - 1)```
-4. ```factorial 2``` calls ```factorial (2 - 1)```
-5. ```factorial 1``` calls ```factorial (1 - 1)```
-6. ```factorial 0``` returns ```1```
-7. ```factorial 1``` returns ```1 * 1```
-8. ```factorial 2``` returns ```2 * 1```
-9. ```factorial 3``` returns ```3 * 2```
-10. ```factorial 4``` returns ```4 * 6```
-11. ```factorial 5``` returns ```5 * 24```
+```haskell
+[1, 2, 3, 4, 5]
+```
 
-So, even though the syntax is a bit different, the two definitions are
-otherwise identical: both specify the same two cases involved in calculating a
-factorial: ```0! = 1``` and ```n! = n * (n - 1)!```.
+Once the list range is evaluated, it's passed to the *product* function, like
+so:
+
+```haskell
+product [1, 2, 3, 4, 5]
+```
+
+The *product* function takes a list of numbers, multiplies them all together,
+and returns the result. So this will evaluate to:
+
+```haskell
+1 * 2 * 3 * 4 * 5
+```
+
+The answer turns out to be *120*, which just so happens to be ```5!```, the
+very number we were looking for. What a lucky coincidence!
+
+So, once the *factorial* function above is defined, you can get the factorial
+for a number by calling it with that number like this:
+
+```haskell
+factorial 0 -- This returns 1
+factorial 3 -- This returns 6
+factorial 5 -- This returns 120
+```
 
 # Factorials in an imperative language
 
@@ -201,35 +207,120 @@ Take a look at this factorial function written in C:
 ```c
 int factorial(int n)
 {
-    if (n == 0)
+    int ret = 1;
+
+    while (n > 1)
     {
-        return 1;
+        ret *= n;
+        n--;
     }
 
-    return n * factorial(n - 1);
+    return ret;
 }
 ```
 
-Again, you should see some similarities between this and both the Haskell and
-math versions, but there are important differences in style.
+Fundamentally, this is the same exact logic as in the Haskell version, it's
+just specified in a different way. But this time, rather than explaining the
+definition of a factorial declaratively, we have to give C a series of steps
+it can follow to produce the result we want.
 
-Rather than defining the two different cases (the base case and the recursive
-case) and letting Haskell figure out which to use, in C, we have to express
-this logic ourselves.
+At a high level, this function does the following:
 
-Each time the C version of the *factorial* function is called, it performs the
-following steps in order:
+1. Set *ret* to 1. This is going to be the return value.
+2. Multiply *n* by *ret*.
+3. Subtract 1 from *n*.
+4. Repeat steps 2-3 as long as *n* is greater than 1.
+5. Return the value in *ret*.
 
-1. Check if *n* is equal to 0. If so, this is the base case. Return 1.
-2. Otherwise, make a recursive call to ```factorial(n - 1)``` and multiply the
-   result by *n*.
+Let's step through this line by line to see how this is done.
 
-Fundamentally, this is the same exact logic as in the other versions, it's just
-specified in a different way. There is still a base case which states that
-```0! = 1``` and there's still a recursive case which states that
-```n! = n * (n - 1)!```. But this time, rather than explaining those
-relationships declaratively, we instead have to give C a series of steps
-it can follow to produce the result.
+```c
+int factorial(int n)
+{
+```
+
+This marks the beginning of the *factorial* function. It states that
+*factorial* is a function which takes an integer called *n* returns another
+integer. This doesn't break down into English quite as naturally as the
+Haskell type signature, but we can try:
+
+```c
+// Returning an int, factorial is a function which takes an int named n
+                int  factorial         (                    int       n)
+```
+
+The ordering of the syntax makes it a bit more awkward, but this line means
+the exact same thing as the Haskell function signature.
+
+```c
+    int ret = 1;
+```
+
+This declares a new integer called *ret* and sets it to the value 1. This is
+going to be the return value. We'll be repeatedly multiplying *n* against this
+value and returning it when we're done.
+
+```c
+    while (n > 1)
+    {
+```
+
+This is a loop. This says to run the code inside the curly braces ```{ ... }```
+over and over as long as *n* is greater than 1. If *n* is 0 or 1 at the start
+of the function, this loop will never run at all.
+
+```c
+        ret *= n;
+```
+
+Each time the loop runs, we multiply *n* by *ret* and store the result in
+*ret*.
+
+```c
+        n--;
+```
+
+Then we subtract 1 from *n*. This way, *n* will keep going down each time the
+loop runs.
+
+```c
+    }
+```
+
+This is the end of the loop body. When execution reaches this point, it will
+jump back to the beginning of the loop and run it again.
+
+```c
+    return ret;
+}
+```
+
+Once the loop is finished, we return the value in *ret* and end the function.
+
+This *factorial* function can be called like this:
+
+```c
+    factorial(5);
+```
+
+When it's called with a 5, the following steps happen:
+
+1. *ret* is set to 1.
+2. *n* is 5 and 5 > 1, so the loop body runs.
+3. *ret* is multiplied by 5, changing it to 5.
+4. *n* is decremented, changing it to 4.
+5. *n* s 4 and 4 > 1, so the loop body runs again.
+6. *ret* is multiplied by 4, changing it to 20.
+7. *n* is decremented, changing it to 3.
+8. *n* is 3 and 3 > 1, so the loop body runs again.
+9. *ret* is multipled by 3, changing it to 60.
+10. *n* is decremented, changing it to 2.
+11. *n* is 2 and 2 > 1, so the loop body runs again.
+12. *ret* is multiplied by 2, changing it to 120.
+13. *n* is decremented, changing it to 1.
+14. *n* is 1 and 1 is not greater than 1, so the loop ends.
+15. *ret*, with a value of 120, is returned to the caller.
+
 
 # Factorials in assembly language
 
@@ -253,21 +344,18 @@ computer:
 
 ```nasm
 factorial:
-    cmp rax, 1
-    je base_case
-
-    push rax
-
-    dec rax
-    call factorial
-
-    pop rax
-    imul rdi, rax
-
-    ret
-
-  base_case:
     mov rdi, 1
+
+  .loop:
+    cmp rax, 1
+    jle .done
+
+    imul rdi, rax
+    dec rax
+
+    jmp .loop
+
+  .done:
     ret
 ```
 
@@ -281,40 +369,55 @@ Take a look at this version with comments added showing roughly what each line
 does in C:
 
 ```nasm
-factorial:          ; int factorial(int n) {
-                    ;     int ret;
+factorial:        ; int factorial(int n) {
+    mov rdi, 1    ;     int ret = 1;
 
-    cmp rax, 0      ;     if (n == 0)             // Expects rax to be set to n
-    je base_case    ;         goto base_case;     // The dreaded goto!
+  .loop:          ; .loop:
+    cmp rax, 1    ;     if (n <= 1)
+    jle .done     ;         goto .done;     // The dreaded goto!
 
-    push rax        ;     int original_n = n;     // Save n's original value
+    imul rdi, rax ;     ret *= n;
+    dec rax       ;     n--;
 
-    dec rax         ;     n--;
-    call factorial  ;     ret = factorial(n);
+    jmp .loop     ;     goto .loop;         // Oh god it's another one!
 
-    pop rax         ;     n = original_n;         // Restore n
-    imul rdi, rax   ;     ret *= n;
-
-    ret             ;     return ret;
-
-  base_case:        ; base_case:
-    mov rdi, 1      ;     ret = 1;
-    ret             ;     return ret;
-                    ; }
+  .done:          ; .done:
+    ret           ;     return ret;
+                  ; }
 ```
 
-With the comments in place, this should look a little less odd. When the
-function starts, it checks if *n* is equal to 0. If it is, it jumps over most
-of the function body and returns 1, satisfying the rule ```0! = 1```.
-Otherwise, it calls itself recursively and returns ```n * (n - 1)!```.
+The mapping isn't perfect, but with the comments in place, this code should
+look a little less odd.
+
+Even though it's described differently, the basic logic is the same as the C
+version. This is no accident: C is a fairly thin layer over assembly and most
+of its constructs can map pretty directly to a wide variety of machines.
+
+One critical difference between this assembly version and both the C and
+Haskell versions is that there is no type signature. Nowhere does the
+assembly version define what inputs and outputs the *factorial* function takes.
+Instead, it expects that the input value *n* has been loaded into a register
+called *rax* before the function was called. It calculates the factorial of the
+value in *rax* and leaves the answer in *rdi* for the caller to use. Nowhere
+in the code is this expressed in concrete terms: to use this function you
+basically just have to know what it expects. Ideally it would be commented
+with this information. Otherwise you'd have to read the function's code to try
+and sort out how to use it.
+
+When the function starts, it sets *rdi* to 1, which it will use as its return
+value. Next, it repeatedly multiplies that return value by the value in *rax*,
+subtracting 1 from *rax* each time. Once *rax* reaches 0 or 1, the function
+ends and the return value is left in *rdi* for the caller to use. Assuming the
+caller put an integer in *rax* before calling the *factorial* function, it will
+find the factorial of that integer in *rdi* when the function returns.
 
 If you're curious what these instructions really do beyond just seeing how
 they could map to C-style syntax, read on!
 
 # More detail on the assembly version
 
-First, a quick primer. The CPU doesn't think in terms of variables like
-```int n``` or expressions like ```n * factorial(n - 1)```. Instead, it has a
+First, a quick primer. The CPU doesn't really think in terms of variables like
+```int ret = 1;``` or expressions like ```ret *= n;```. Instead, it has a
 number of *registers*, each of which can store a fixed amount of data. On a
 64-bit processor, the general-purpose registers store 64 bits each.
 
@@ -351,6 +454,16 @@ those registers together.
 Let's go through the assembly function line by line to see how it works in
 more detail.
 
+
+
+
+
+
+
+
+
+
+
 ```nasm
 factorial:
 ```
@@ -371,121 +484,217 @@ So at the beginning of the function, we can assume that the caller put *n* into
 *rax*.
 
 ```nasm
-    cmp rax, 0
+    mov rdi, 1
 ```
 
-Remember *rax* is *n*. The first thing we do is check if this is the base case.
-This instruction compares the value in *rax* to 0. It doesn't do anything with
-that information, it just sets things up so we can act on it later.
+We're going to return the result of the function in a register called *rdi*.
+This instruction sets it to 1. We have no idea what this register is set to at
+the beginning of the function because registers aren't automatically cleared
+when functions are called.
 
 ```nasm
-    je base_case
+  .loop:
+```
+
+This is another label, marking the beginning of the loop. The dot at the front
+makes it a local label, meaning it's local to the function we're in. We can
+jump to ```.loop:``` anytime we want the loop to run.
+
+```nasm
+    cmp rax, 1
+```
+
+Each time the loop runs, the first thing we need to do is check if the loop
+should end yet.
+
+Remember *rax* is *n*.  This instruction compares the value in *rax* to 1. It
+doesn't do anything with that information, it just sets things up so we can act
+on it later.
+
+```nasm
+    jle .done
 ```
 
 This instruction acts on the previous compare instruction. This means to
-**j**ump if **e**qual to the *base_case* label. So if *n* is 0, this will
-jump ahead to the *base_case:* label, which will handle returning 1 (for
-```0! = 1```. If not, execution will continue to the next instruction.
-
-```nasm
-    push rax
-```
-
-If the program didn't jump ahead to the *base_case:* label, we know that
-*n* must not be 0. That means we need to handle the recursive case.
-
-Like usual, we need to call the function we're already in, but with `rax` set
-to a value of ```n - 1```. When it returns, *rdi* will be set to the answer
-```(n - 1)!```. We will then need to multiply that answer by the original value
-in *rax*.
-
-There's just one problem: we're calling the same function again, which requires
-*rax* to be set to the input parameter *n*. We're going to end up destroying
-the original value of *n* in order to make the recursive call! We need some way
-to save the original value of *n* for later.
-
-This is where the stack comes in. When you *push* something onto the stack,
-it's saved there for later. The instruction above copies the value of *n* onto
-the stack. Now we can destroy the data in *rax* and still restore its original
-value by *pop*ing it back off the stack later on. Of course, we have to make
-sure we *pop* data off the stack in the same order we *push*ed it on, or we'll
-end up with the wrong data.
-
-```nasm
-    dec rax
-```
-
-Now that we've saved *rax*'s original value on the stack, we can mess up the
-value in *rax*. This instruction *dec*rements the value in *rax*. So if *rax*
-is 5, this instruction will change it to 4.
-
-```nasm
-    call factorial
-```
-
-We have ```n - 1``` sitting in *rax*, so we're all set to make the recursive
-call. The *call* instruction does two things:
-
-1. It pushes the current instruction pointer onto the stack so that the line
-   we're on can be returned to when the recursive call is done.
-2. It jumps to the *factorial:* label to run this function again, now with a
-   different value for *n* in *rax*.
-
-```nasm
-    pop rax
-```
-
-After the recursive call is finished, execution will resume where it left off.
-Since the *factorial* function leaves its answer in the register *rdi*, we can
-assume that the answer to ```(n - 1)!``` is now sitting in *rdi*. We need to
-multiply it by *n* before we can return the answer to ```n!```.
-But we destroyed the value in *rax* in order to make the recursive call.
-
-Before that can be done, we need to restore the original value that was in
-*rax*. This instruction will *pop* the value we previously saved back off the
-stack and into *rax*, restoring *rax* to its original value. *rax* should be
-set to *n* again, just as it was at the beginning of the function.
+**j**ump if **l**ess than or **e**qual. So if *rax* is less than or equal to
+1, execution will skip ahead to the *done:* label. Otherwise, execution will
+continue to the next instruction, which will run the loop body.
 
 ```nasm
     imul rdi, rax
 ```
 
-So *rax* is set to ```n``` and *rdi* is set to ```(n - 1)!```. Let's multiply
-them together! In this instruction, the two values are multiplied together, and
-the answer is saved in *rdi*.
+If the program didn't jump out of the loop to the *.done:* label, we know that
+*n* must be 2 or higher. This instruction multiplies the values in *rdi* and
+*rax* and stores the result in *rdi*.
+
+```nasm
+    dec rax
+```
+
+This instruction decrements *rax*, which means it subtracts 1 from it. If *rax*
+is 5, this instruction will set it to 4.
+
+```nasm
+    jmp .loop
+```
+
+This instruction jumps back to the *.loop:* label, which starts the loop over
+again.
+
+```nasm
+  .done:
+```
+
+Once the loop is finished running, execution will jump here.
 
 ```nasm
     ret
 ```
 
-The result of ```n * (n - 1)!```, which is ```n!```, is sitting in *rdi*.
-We're ready to end the function. This instruction pops a value off the stack
-and jumps to it. Since a call was made to start this function, assuming we
-didn't mess up the ordering of *push*es and *pop*s, there should be a return
-instruction address sitting on the top of the stack right now. When this
-instruction executes, that address will be popped off and stored in *rip*.
-*rip* is a special register that controls what instruction runs next. This
-means execution will resume wherever it left off when this function was called,
-now with the return value of ```n!``` waiting in *rdi* for the caller to use.
+The factorial result should be sitting in *rdi*. This instruction ends the
+function, causing execution to jump back to wherever it left off when this
+function was called. The return value of ```n!``` will be left in the *rdi*
+register for the caller to use.
 
-```nasm
-  base_case:
+# Factorials in machine code
+
+We've seen the assembly language version of a factorial function, but can a
+computer run that directly? The answer is not quite. Assembly language is a
+mnemonic for machine code, meaning that each instruction maps to a machine
+code instruction, but is specified using bits of English words and numbers in
+decimal notation in order to be easier for humans like me and (presumably) you.
+
+We can hand assemble code using the handy reference at
+[ref.x86asm.net](http://ref.x86asm.net/). A detailed look at hand-assembling
+code is probably a topic for another day, but just for fun, let's look at how
+the assembly function could map to machine code.
+
+*Note: I'm going to leave out some common optimizations*
+
+Behold!
+
+```
+48 bf 01 00 00 00 00 00 00 00 48 3d 01 00 00 00 7e 0c 48 0f af f8 48 ff c8 e9
+ec ff ff ff c3
 ```
 
-This marks the start of the handling for the base case. If *n* was 0 at the
-beginning of the function, the *cmp* and *je* instructions would have sent
-execution here, skipping the recursive section. All we need to do here is
-return 1.
+This is the factorial function in machine code. Makes sense, right? I'm glad
+you understand, thanks for reading!
+
+...
+
+Yeah I can't read this very well either, but this is kind of how a computer
+sees machine code. It's a big slab of bytes sitting somewhere in memory. The
+*rip* register stores an address to one of those bytes. When the computer runs
+an instruction it checks the value of *rip* to see where it's pointing and it
+*decodes* the data it finds there.  That means that according to a bunch of
+rules it sorts out what instruction is meant by a series of bytes. It does
+whatever the instruction tells it to. By default it moves *rip* to point to the
+next byte after the end of the instruction it decoded so that the next time it
+tries to run an instruction it will be pointing at the next instruction in
+memory. This causes each instruction to run sequentially. However, in some
+cases (like jump instructions) the instruction modifies the *rip* register to
+point somewhere else, causing execution to jump around.
+
+The code above is represented as hex. Each pair of hex digits is one byte. This
+could just as easily be represented as a series of 0s and 1s (8 per byte) or in
+decimal (a number from 0-255 for each byte). For example:
+
+| Decimal | Hex | Binary   |
+|---------|-----|----------|
+| 72      | 48  | 01001000 |
+
+The way the data is represented isn't really important. You could make up your
+own encoding of the data if you wanted, even though nobody would know what it
+meant.
+
+Since this slab of hex bytes isn't very helpful, let's break it up into
+instructions:
 
 ```nasm
-    mov rdi, 1
+48 bf 01 00 00 00 00 00 00 00   mov rdi, 1
+
+48 3d 01 00 00 00               cmp rax, 1
+7e 0c                           jle .done       ; Jump ahead 12 bytes
+
+48 0f af f8                     imul rdi, rax
+48 ff c8                        dec rax
+
+e9 ec ff ff ff                  jmp .loop       ; Jump back 20 bytes
+
+c3                              ret
 ```
 
-This instruction sets *rdi* to the integer value 1, where the caller will
-expect the return value to be.
+Probably the biggest difference (other than vaguely English-inspired words
+turning into a soup of hex digits) is the lack of labels. That's because labels
+like *factorial:* and *.done:* are a convenience provided by assemblers. In
+machine code, jumps work by jumping to relative offsets.
+
+Take a look at the assembled version of ```jle .done```:
 
 ```nasm
-    ret
+7e 0c                           jle .done       ; Jump ahead 12 bytes
 ```
 
-Now the function returns to the caller, with the answer to ```0!``` in *rdi*.
+In this instruction, each byte has a meaning:
+
+| Hex | Role    | Meaning                               |
+|-----|---------|---------------------------------------|
+| 7e  | Opcode  | *jle* - jump if less than or equal to |
+| 0c  | Operand | 12 bytes forward                      |
+
+So the *7e* tells the computer the opcode, or the type of instruction to
+execute. *0c* is the value telling it where to jump. *0c* is hex for *12*.
+All together, this means to jump forward 12 bytes.
+
+When an instruction is executed, *rip* will be pointing to the next byte after
+that instruction. So when ```7e 0c``` is executed, *rip* will be pointing to
+the ```48 0f af f8``` that comes after it. If *rax* is less than or equal to
+1, causing the jump to occur, *rip* will be advanced 12 bytes, which will leave
+it pointing at the ```c3``` all the way at the end. The next instruction to
+run will therefore be ```c3 - ret```.
+
+How about jumping backwards? It works the same. Take a look at the code for
+```jmp .loop```, which jumps back to the start of the loop:
+
+```nasm
+e9 ec ff ff ff                  jmp .loop       ; Jump back 20 bytes
+```
+
+This instruction can be broken into two pieces like the previous one:
+
+| Hex         | Role    | Meaning                                 |
+|-------------|---------|-----------------------------------------|
+| e9          | Opcode  | *jmp* - unconditional jump              |
+| ec ff ff ff | Operand | *-20* in signed two's complement format |
+
+So ```e9``` tells the CPU to jump and ```ec ff ff ff``` tells it to jump
+backwards 20 bytes. When this instruction is executed, *rip* will be pointing
+to the ```c3 - ret``` at the end of the function. Applying a delta of -20 to
+the *rip* will cause execution to jump back 20 bytes to
+```48 3d 01 00 00 00 - cmp rax, 1``` which will run the loop again.
+
+This is a very convenient feature provided by assemblers. Without it, you'd
+have to count bytes back and forth to implement control structures like
+conditionals and loops. Every time you changed instructions inside a loop
+or added a bit more code you'd have to recalculate all your jump offsets. So
+assemblers help out a lot more than just translating pseudo-English like
+*jmp* or *rax* to their binary equivalents.
+
+# Conclusion
+
+We've seen an idea traced gradually down through several ways of describing it,
+showing how some logic can be translated from a format optimized for processing
+by the human brain down to a format appropriate for a machine, with plenty of
+stops along the way:
+
+1. **English** - a way of describing ideas to us filthy humans
+2. **Math** - a better way of describing ideas to us filthy humans
+3. **Haskell** - a high level functional language
+4. **C** - a pretty high level imperative language
+5. **Assembly** - a mnemonic for machine code
+6. **x86-64 code** - instructions a CPU can directly process
+
+Hopefully this has been interesting and possibly even enlightening. Thanks for
+reading!

@@ -2,15 +2,18 @@
 
 int factorial(int n)
 {
-    if (n == 0)
+    int ret = 1;
+
+    while (n > 1)
     {
-        return 1;
+        ret *= n;
+        n--;
     }
 
-    return n * factorial(n - 1);
+    return ret;
 }
 
 int main()
 {
-    return factorial2(5);
+    return factorial(5);
 }

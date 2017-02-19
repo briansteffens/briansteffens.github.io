@@ -42,6 +42,11 @@ layout: default
         text-align: center;
         font-weight: bold;
     }
+
+    img {
+        display: block;
+        margin: 0 auto;
+    }
 </style>
 
 <div class="markdown-body">{{ body }}</div>

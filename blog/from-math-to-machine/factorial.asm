@@ -4,21 +4,18 @@ section .text
 
 ; Calculates the factorial of the value in rax and returns the result in rdi.
 factorial:
-    cmp rax, 0
-    je base_case
-
-    push rax
-
-    dec rax
-    call factorial
-
-    pop rax
-    imul rdi, rax
-
-    ret
-
-  base_case:
     mov rdi, 1
+
+  .loop:
+    cmp rax, 1
+    jle .done
+
+    imul rdi, rax
+    dec rax
+
+    jmp .loop
+
+  .done:
     ret
 
 
