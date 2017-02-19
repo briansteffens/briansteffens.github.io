@@ -49,6 +49,10 @@ layout: default
     }
 </style>
 
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 <div class="markdown-body">{{ body }}</div>
 '''
 
@@ -82,7 +86,7 @@ def process_post(source_fn, destination_fn):
 
 
 process_post('blog/from-math-to-machine/post.md',
-             '_posts/2017-02-17-from-math-to-machine.md')
+             '_posts/2017-02-20-from-math-to-machine.md')
 
 
 def process_guide(guide, next_guide):
