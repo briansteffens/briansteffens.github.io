@@ -1,5 +1,5 @@
-From Math To Machine: Factorials
-================================
+From math to machine: translating a function to machine code
+============================================================
 
 In this post I'm going to explore how a mathematical concept can be redefined
 in progressively more computer-oriented terms, all the way from high level
@@ -665,10 +665,7 @@ and formats are somehow related to each other. Spooky!
 
 # Conclusion
 
-We've seen an idea traced gradually down through several ways of describing it,
-showing how logic can be translated from a format optimized for processing
-by the human brain down to a format appropriate for a machine, with plenty of
-stops along the way.
-
-Hopefully this has been interesting and possibly even enlightening. If you
-enjoyed this, feel free to send me millions of dollars. Thanks for reading!
+We've seen an idea translated gradually down through several languages, ending
+up with machine code. Hopefully this has been interesting and possibly even
+enlightening. If you enjoyed this, feel free to send me millions of dollars.
+Thanks for reading!

@@ -1,5 +1,6 @@
 ---
 layout: default
+title: "From math to machine: translating a function to machine code"
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 
@@ -27,7 +28,7 @@ layout: default
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-<div class="markdown-body"><h1>From Math To Machine: Factorials</h1>
+<div class="markdown-body"><h1>From math to machine: translating a function to machine code</h1>
 <p>In this post I'm going to explore how a mathematical concept can be redefined
 in progressively more computer-oriented terms, all the way from high level
 languages down to machine code, ready for direct execution by a computer. To
@@ -582,9 +583,7 @@ converted into a binary format, it's the same logic as the assembly version,
 which is nearly the same as the C version. It's almost like all these languages
 and formats are somehow related to each other. Spooky!</p>
 <h1>Conclusion</h1>
-<p>We've seen an idea traced gradually down through several ways of describing it,
-showing how logic can be translated from a format optimized for processing
-by the human brain down to a format appropriate for a machine, with plenty of
-stops along the way.</p>
-<p>Hopefully this has been interesting and possibly even enlightening. If you
-enjoyed this, feel free to send me millions of dollars. Thanks for reading!</p></div>
+<p>We've seen an idea translated gradually down through several languages, ending
+up with machine code. Hopefully this has been interesting and possibly even
+enlightening. If you enjoyed this, feel free to send me millions of dollars.
+Thanks for reading!</p></div>
