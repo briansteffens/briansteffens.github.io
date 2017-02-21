@@ -1,6 +1,5 @@
 ---
 layout: default
-title: "From math to machine: translating a function to machine code"
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 
@@ -118,7 +117,7 @@ pretty strange.</p>
 returns another integer. Here's an oddly-formatted version of that first line,
 spaced out so you can see roughly which parts of the syntax mean what:</p>
 <div class="highlight highlight-source-haskell"><pre><span class="pl-c"><span class="pl-c">--</span> factorial is a function which takes an integer and returns an integer</span>
-   <span class="pl-en">factorial</span>         <span class="pl-k">::</span>                     <span class="pl-en"><span class="pl-c1">Int</span></span>          <span class="pl-k">-&gt;</span>        <span class="pl-en"><span class="pl-c1">Int</span></span></pre></div>
+   <span class="pl-en">factorial</span> <span class="pl-k">::</span>                             <span class="pl-en"><span class="pl-c1">Int</span></span>          <span class="pl-k">-&gt;</span>        <span class="pl-en"><span class="pl-c1">Int</span></span></pre></div>
 <p>This first line is technically optional but it's usually good practice to
 include it. Haskell is pretty smart so it can figure out type signatures on its
 own most of the time, but it's still useful to document the function signature

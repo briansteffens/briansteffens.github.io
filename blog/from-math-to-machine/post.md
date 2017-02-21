@@ -89,7 +89,7 @@ spaced out so you can see roughly which parts of the syntax mean what:
 
 ```haskell
 -- factorial is a function which takes an integer and returns an integer
-   factorial         ::                     Int          ->        Int
+   factorial ::                             Int          ->        Int
 ```
 
 This first line is technically optional but it's usually good practice to
