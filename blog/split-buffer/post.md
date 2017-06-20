@@ -1,1 +1,1 @@
-<img src="/blog/split-buffer/gap-buffer.svg" />
+<img src="/blog/split-buffer/gap-buffer-1.svg" />
