@@ -34,4 +34,14 @@ layout: default
 <p><a href="/blog/split-buffer/gap-buffer-5.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-5.svg" style="max-width:100%;"></a></p>
 <p><a href="/blog/split-buffer/gap-buffer-6.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-6.svg" style="max-width:100%;"></a></p>
 <p><a href="/blog/split-buffer/gap-buffer-7.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-7.svg" style="max-width:100%;"></a></p>
-<p><a href="/blog/split-buffer/gap-buffer-8.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-8.svg" style="max-width:100%;"></a></p></div>
+<p><a href="/blog/split-buffer/gap-buffer-8.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-8.svg" style="max-width:100%;"></a></p>
+<p>separator</p>
+<p><a href="/blog/split-buffer/split-buffer-1.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-1.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-2.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-2.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-3.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-3.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-4.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-4.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-5.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-5.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-6.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-6.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-7.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-7.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-8.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-8.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffer/split-buffer-9.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-9.svg" style="max-width:100%;"></a></p></div>
