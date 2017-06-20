@@ -88,8 +88,8 @@ def process_post(source_fn, destination_fn):
 process_post('blog/from-math-to-machine/post.md',
              '_posts/2017-02-20-from-math-to-machine.md')
 
-process_post('blog/split-buffer/post.md',
-             '_posts/2017-06-19-split-buffer.md')
+process_post('blog/split-buffers/post.md',
+             '_posts/2017-06-19-split-buffers.md')
 
 
 def process_guide(guide, next_guide):
