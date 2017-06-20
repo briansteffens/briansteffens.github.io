@@ -27,6 +27,4 @@ layout: default
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-<div class="markdown-body"><p align="center">
-![alt](https://briansteffens.github.io/blog/split-buffer/gap-buffer.svg)
-</p></div>
+<div class="markdown-body"><p><a href="https://camo.githubusercontent.com/2b0fd66fde862097059a6b8f8522f46eeb8f5673/68747470733a2f2f627269616e7374656666656e732e6769746875622e696f2f626c6f672f73706c69742d6275666665722f6761702d6275666665722e737667" target="_blank"><img src="https://camo.githubusercontent.com/2b0fd66fde862097059a6b8f8522f46eeb8f5673/68747470733a2f2f627269616e7374656666656e732e6769746875622e696f2f626c6f672f73706c69742d6275666665722f6761702d6275666665722e737667" alt="alt" data-canonical-src="https://briansteffens.github.io/blog/split-buffer/gap-buffer.svg" style="max-width:100%;"></a></p></div>
