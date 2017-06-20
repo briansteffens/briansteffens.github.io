@@ -27,4 +27,4 @@ layout: default
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-<div class="markdown-body"><p><a href="/blog/split-buffer/gap-buffer-1.svg" target="_blank"><img width="150%" src="/blog/split-buffer/gap-buffer-1.svg" style="max-width:100%;"></a></p></div>
+<div class="markdown-body"><p><a href="/blog/split-buffer/gap-buffer-1.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-1.svg" style="max-width:100%;"></a></p></div>
