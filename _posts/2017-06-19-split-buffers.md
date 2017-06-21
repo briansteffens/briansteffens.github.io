@@ -47,10 +47,10 @@ inserting text, and deleting text.</p>
 <p>The gap buffer is used by quite a few text editors. One example is GNU Emacs.</p>
 <p>A gap buffer stores a string of text in a single array in memory. Here's how
 the string "a buffer" would look in memory:</p>
-<p><a href="/blog/split-buffer/gap-buffer-1.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-1.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-1.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-1.svg" style="max-width:100%;"></a></p>
 <p>Each character occupies one position within the array. In order to turn this
 into a gap buffer, the array is divided into three sections:</p>
-<p><a href="/blog/split-buffer/gap-buffer-2.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-2.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-2.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-2.svg" style="max-width:100%;"></a></p>
 <p>In the diagram above, the cursor is sitting between the <code>b</code> and the <code>u</code>
 characters. The sections are as follows:</p>
 <ul>
@@ -66,17 +66,17 @@ array belong to which section. This is the main complication I wanted to solve.<
 presses the left arrow key to move the cursor one character to the left, we
 move the last character from the <em>pre</em> section into last slot of the
 <em>gap</em> section:</p>
-<p><a href="/blog/split-buffer/gap-buffer-3.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-3.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-3.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-3.svg" style="max-width:100%;"></a></p>
 <p>We have shrunken the <em>pre</em> section and grown the <em>post</em> section. The gap has
 shifted to the left, meaning the cursor is now between the space and the <code>b</code>
 character:</p>
-<p><a href="/blog/split-buffer/gap-buffer-4.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-4.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-4.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-4.svg" style="max-width:100%;"></a></p>
 <p>Inserting text is pretty simple too. To insert the character <code>g</code> at the
 cursor's position, we expand the <em>pre</em> section and put the inserted character
 in the new slot:</p>
-<p><a href="/blog/split-buffer/gap-buffer-5.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-5.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-5.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-5.svg" style="max-width:100%;"></a></p>
 <p>With only one slot left in the gap, we can only insert one more character:</p>
-<p><a href="/blog/split-buffer/gap-buffer-6.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-6.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-6.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-6.svg" style="max-width:100%;"></a></p>
 <p>The gap is still there, but it's empty. The cursor is between the <code>a</code> and the
 <code>b</code>, but we have no more room to insert characters without overwriting
 something else.</p>
@@ -89,11 +89,11 @@ the other operations:</p>
 <li>Free the original array</li>
 </ol>
 <p>We resize the array to expand the gap:</p>
-<p><a href="/blog/split-buffer/gap-buffer-7.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-7.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-7.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-7.svg" style="max-width:100%;"></a></p>
 <p>In this example, the array has been increased by two characters and the <em>post</em>
 section has been moved to the end of the new array. This leaves two new slots
 in the gap section we can use to insert up to two more characters:</p>
-<p><a href="/blog/split-buffer/gap-buffer-8.svg" target="_blank"><img src="/blog/split-buffer/gap-buffer-8.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/gap-buffer-8.svg" target="_blank"><img src="/blog/split-buffers/gap-buffer-8.svg" style="max-width:100%;"></a></p>
 <p>The original string "a buffer" has been edited to become "a gap buffer".</p>
 <h1>A gap buffer implementation</h1>
 <p>To demonstrate how this can be done, let's look at a very stripped down
@@ -295,49 +295,49 @@ to be managed.</p>
 <p>Like before, let's take an initial value of "a buffer" and place the cursor
 between the <code>b</code> and the <code>u</code>. To do this, we need to split the string into
 <em>pre</em> and <em>post</em> arrays:</p>
-<p><a href="/blog/split-buffer/split-buffer-1.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-1.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-1.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-1.svg" style="max-width:100%;"></a></p>
 <p>Notice these are separate physical arrays in memory, not virtual sections in
 one combined array.</p>
 <p>Now we need to reverse the <em>post</em> array. This is done to improve the
 performance of operations around the cursor. It's much cheaper to make changes
 to the end of an array than to the beginning.</p>
-<p><a href="/blog/split-buffer/split-buffer-2.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-2.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-2.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-2.svg" style="max-width:100%;"></a></p>
 <p>Once the <em>post</em> array is reversed, the data should look like this:</p>
-<p><a href="/blog/split-buffer/split-buffer-3.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-3.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-3.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-3.svg" style="max-width:100%;"></a></p>
 <p>Notice the flow of characters wraps around. The first character in the buffer
 is the first character in the <em>pre</em> array. The last character in the buffer
 is the last character in the <em>post</em> array. So the buffer is chopped in half
 where the cursor is.</p>
-<p><a href="/blog/split-buffer/split-buffer-4.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-4.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-4.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-4.svg" style="max-width:100%;"></a></p>
 <p>Unlike the gap buffer, there is no gap. Or another way to put it is that we
 have an unlimited gap which is the "space" between arrays. Despite the data
 being laid out differently, many operations remain very similar. For example,
 to move the cursor to the left, move one character from the end of the <em>pre</em>
 array to the end of the <em>post</em> array:</p>
-<p><a href="/blog/split-buffer/split-buffer-5.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-5.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-5.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-5.svg" style="max-width:100%;"></a></p>
 <p>Which produces:</p>
-<p><a href="/blog/split-buffer/split-buffer-6.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-6.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-6.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-6.svg" style="max-width:100%;"></a></p>
 <p>Moving the cursor to the right is done exactly opposite: move one character
 from the end of the <em>post</em> array to the end of the <em>pre</em> array:</p>
-<p><a href="/blog/split-buffer/split-buffer-7.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-7.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-7.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-7.svg" style="max-width:100%;"></a></p>
 <p>To delete the character in front of the cursor (as in pressing the delete key),
 remove a character from the end of the <em>post</em> array:</p>
-<p><a href="/blog/split-buffer/split-buffer-8.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-8.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-8.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-8.svg" style="max-width:100%;"></a></p>
 <p>And to delete the character behind the cursor (as in a backspace), remove a
 character from the end of the <em>pre</em> array:</p>
-<p><a href="/blog/split-buffer/split-buffer-9.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-9.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-9.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-9.svg" style="max-width:100%;"></a></p>
 <p>Text insertions are improved quite a bit over the gap buffer version. To insert
 text before the cursor, toss it onto the end of the <em>pre</em> array:</p>
-<p><a href="/blog/split-buffer/split-buffer-10.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-10.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-10.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-10.svg" style="max-width:100%;"></a></p>
 <p>The text "split bu" has been added to the buffer as if it was typed or pasted
 in at the cursor's location. Notice we didn't have to check if the gap was
 large enough, conditionally reallocate the array, then copy pieces of the array
 around. We just appended the text to the end of the <em>pre</em> array.</p>
 <p>To get the complete text back out, we first reverse the <em>post</em> array, putting
 it back in normal order:</p>
-<p><a href="/blog/split-buffer/split-buffer-11.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-11.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-11.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-11.svg" style="max-width:100%;"></a></p>
 <p>Then we combine the <em>pre</em> and <em>post</em> arrays into the complete output:</p>
-<p><a href="/blog/split-buffer/split-buffer-12.svg" target="_blank"><img src="/blog/split-buffer/split-buffer-12.svg" style="max-width:100%;"></a></p>
+<p><a href="/blog/split-buffers/split-buffer-12.svg" target="_blank"><img src="/blog/split-buffers/split-buffer-12.svg" style="max-width:100%;"></a></p>
 <h1>A split buffer implementation</h1>
 <p>Let's implement a basic split buffer in Go! We need to store two arrays:</p>
 <div class="highlight highlight-source-go"><pre><span class="pl-k">type</span> <span class="pl-v">SplitBuffer</span> <span class="pl-k">struct</span> {
