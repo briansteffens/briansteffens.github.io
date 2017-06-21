@@ -31,7 +31,7 @@ layout: default
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-<div class="markdown-body"><h1>Split buffers and gap buffers</h1>
+<div class="markdown-body"><h1>Split buffers: a variation on the gap buffer data structure</h1>
 <p>I've been working on a text editor component for a terminal-based SQL editor
 called <a href="https://github.com/briansteffens/prequel">prequel</a>. In the process,
 I've done some research on several common data structures used to manage the

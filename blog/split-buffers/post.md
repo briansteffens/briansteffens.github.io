@@ -1,5 +1,5 @@
-Split buffers and gap buffers
-=============================
+Split buffers: a variation on the gap buffer data structure
+===========================================================
 
 I've been working on a text editor component for a terminal-based SQL editor
 called [prequel](https://github.com/briansteffens/prequel). In the process,
