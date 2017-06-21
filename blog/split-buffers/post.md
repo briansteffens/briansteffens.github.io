@@ -1,5 +1,5 @@
-Split buffers - a variation of the gap buffer data structure
-============================================================
+Split buffers and gap buffers
+=============================
 
 I've been working on a text editor component for a terminal-based SQL editor
 called [prequel](https://github.com/briansteffens/prequel). In the process,
@@ -499,7 +499,7 @@ To get the text back out of the buffer after making some edits, we need to
 reverse the order of the *post* array again to get it back in normal order,
 then concatenate the *pre* and *post* arrays:
 
-```
+```go
 func (r *SplitBuffer) GetText() string {
 	ret := make([]rune, len(r.pre) + len(r.post))
 

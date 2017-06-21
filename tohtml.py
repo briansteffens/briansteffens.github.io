@@ -47,6 +47,10 @@ layout: default
         display: block;
         margin: 0 auto;
     }
+
+    img.split {
+    }
+
 </style>
 
 <script type="text/javascript" async
@@ -54,6 +58,16 @@ layout: default
 </script>
 
 <div class="markdown-body">{{ body }}</div>
+'''
+
+
+split_img_hack = '''
+<style>
+    img {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+</style>
 '''
 
 
@@ -79,7 +93,12 @@ def process_post(source_fn, destination_fn):
     with open(source_fn) as f:
         body = convert_markdown(f.read())
 
-    output = post_template.replace('{{ body }}', body)
+    output = post_template
+
+    if 'split-buffers' in destination_fn:
+        output += split_img_hack
+
+    output = output.replace('{{ body }}', body)
 
     with open(destination_fn, 'w') as f:
         f.write(output)

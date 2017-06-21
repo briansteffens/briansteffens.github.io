@@ -21,6 +21,10 @@ layout: default
         display: block;
         margin: 0 auto;
     }
+
+    img.split {
+    }
+
 </style>
 
 <script type="text/javascript" async

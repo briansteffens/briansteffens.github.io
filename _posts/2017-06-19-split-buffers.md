@@ -21,13 +21,17 @@ layout: default
         display: block;
         margin: 0 auto;
     }
+
+    img.split {
+    }
+
 </style>
 
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-<div class="markdown-body"><h1>Split buffers - a variation of the gap buffer data structure</h1>
+<div class="markdown-body"><h1>Split buffers and gap buffers</h1>
 <p>I've been working on a text editor component for a terminal-based SQL editor
 called <a href="https://github.com/briansteffens/prequel">prequel</a>. In the process,
 I've done some research on several common data structures used to manage the
@@ -372,15 +376,14 @@ start with a function to reverse an array of runes:</p>
 <p>To get the text back out of the buffer after making some edits, we need to
 reverse the order of the <em>post</em> array again to get it back in normal order,
 then concatenate the <em>pre</em> and <em>post</em> arrays:</p>
-<pre><code>func (r *SplitBuffer) GetText() string {
-	ret := make([]rune, len(r.pre) + len(r.post))
+<div class="highlight highlight-source-go"><pre><span class="pl-k">func</span> <span class="pl-en">(<span class="pl-v">r</span> *<span class="pl-v">SplitBuffer</span>) <span class="pl-en">GetText</span></span>() <span class="pl-v">string</span> {
+	<span class="pl-smi">ret</span> <span class="pl-k">:=</span> <span class="pl-c1">make</span>([]rune, <span class="pl-c1">len</span>(r.<span class="pl-smi">pre</span>) + <span class="pl-c1">len</span>(r.<span class="pl-smi">post</span>))
 
-	copy(ret, r.pre)
-	copy(ret[len(r.pre):], reverseRunes(r.post))
+	<span class="pl-c1">copy</span>(ret, r.<span class="pl-smi">pre</span>)
+	<span class="pl-c1">copy</span>(ret[<span class="pl-c1">len</span>(r.<span class="pl-smi">pre</span>):], <span class="pl-c1">reverseRunes</span>(r.<span class="pl-smi">post</span>))
 
-	return string(ret)
-}
-</code></pre>
+	<span class="pl-k">return</span> <span class="pl-c1">string</span>(ret)
+}</pre></div>
 <p>Moving the cursor around is a matter of moving characters from the end of
 one array to the end of the other. To move the cursor to the right, we copy the
 last character in the <em>post</em> array to the end of the <em>pre</em> array. Then we
@@ -471,3 +474,10 @@ otherwise constant operations, even if they're incredibly rare.</p>
 <p>I'll probably continue to think about this and explore other stream data
 structures. Feel free to get in touch, any suggestions or notes would be
 great!</p></div>
+
+<style>
+    img {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+</style>
