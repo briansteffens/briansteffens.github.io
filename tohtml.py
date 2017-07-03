@@ -110,6 +110,9 @@ process_post('blog/from-math-to-machine/post.md',
 process_post('blog/split-buffers/post.md',
              '_posts/2017-06-19-split-buffers.md')
 
+process_post('blog/google-sheets-virtual-machine/post.md',
+             '_posts/2017-07-03-google-sheets-virtual-machine.md')
+
 
 def process_guide(guide, next_guide):
     readme = os.path.join(guide_repo, guide['name'], 'README.md')
