@@ -1,5 +1,7 @@
 ---
 layout: default
+title: Google Sheets virtual machine
+description: A simple virtual machine demonstration inside a spreadsheet
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 

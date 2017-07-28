@@ -1,5 +1,7 @@
 ---
 layout: default
+title: Split buffers
+description: A variation of the gap buffer data structure for text editors
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 

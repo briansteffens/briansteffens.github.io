@@ -1,5 +1,7 @@
 ---
 layout: default
+title: From math to machine
+description: Compare and contrast how a factorial function can be represented in math, Haskell, C, assembly, and machine code
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 

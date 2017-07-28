@@ -13,6 +13,7 @@ guide_output_dir = 'introduction-to-64-bit-assembly'
 guide_index_template = '''---
 layout: default
 title: Introduction to 64-bit Assembly Language
+hide: 1
 ---
 <p>
     This is an introduction to x86-64 assembly language on Linux using the
@@ -26,6 +27,8 @@ title: Introduction to 64-bit Assembly Language
 
 post_template = '''---
 layout: default
+title: {{ title }}
+description: {{ description }}
 ---
 <link rel="stylesheet" type="text/css" href="/css/github-markdown.css" />
 
@@ -89,7 +92,7 @@ def convert_markdown(source):
     return res.text.replace('<br>', '')
 
 
-def process_post(source_fn, destination_fn):
+def process_post(source_fn, destination_fn, title, description):
     with open(source_fn) as f:
         body = convert_markdown(f.read())
 
@@ -99,19 +102,28 @@ def process_post(source_fn, destination_fn):
         output += split_img_hack
 
     output = output.replace('{{ body }}', body)
+    output = output.replace('{{ title }}', title)
+    output = output.replace('{{ description }}', description)
 
     with open(destination_fn, 'w') as f:
         f.write(output)
 
 
 process_post('blog/from-math-to-machine/post.md',
-             '_posts/2017-02-20-from-math-to-machine.md')
+             '_posts/2017-02-20-from-math-to-machine.md',
+             'From math to machine',
+             'Compare and contrast how a factorial function can be '
+             'represented in math, Haskell, C, assembly, and machine code')
 
 process_post('blog/split-buffers/post.md',
-             '_posts/2017-06-19-split-buffers.md')
+             '_posts/2017-06-19-split-buffers.md',
+             'Split buffers',
+             'A variation of the gap buffer data structure for text editors')
 
 process_post('blog/google-sheets-virtual-machine/post.md',
-             '_posts/2017-07-03-google-sheets-virtual-machine.md')
+             '_posts/2017-07-03-google-sheets-virtual-machine.md',
+             'Google Sheets virtual machine',
+             'A simple virtual machine demonstration inside a spreadsheet')
 
 
 def process_guide(guide, next_guide):

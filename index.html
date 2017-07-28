@@ -2,22 +2,100 @@
 layout: default
 ---
 
+<style>
+
+.post {
+	margin-bottom: 23px;
+}
+
+.post-meta {
+	float: right;
+}
+
+.page-heading {
+	font-weight: bold;
+	margin-bottom: 23px;
+}
+
+.section {
+	margin-top: 67px;
+}
+
+</style>
+
 <div class="home">
 
-  <h1 class="page-heading">Posts</h1>
+  <h1 class="page-heading">Blog posts</h1>
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+	{% for post in site.posts %}
+		{% if post.hide == null %}
+			<div class="post">
+				<span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title | escape }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
+				<a class="post-link" href="{{ post.url | prepend: site.baseurl }}">
+					{{ post.title | escape }}
+				</a>
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+				{{ post.description }}
+			</div>
+		{% endif %}
+	{% endfor %}
+
+	<h1 class="page-heading section">
+		Introduction to 64-bit assembly
+	</h1>
+
+	<div class="post">
+		<a class="post-link" href="http://localhost:4000/introduction-to-64-bit-assembly/01-hello-world">
+			1. Hello, world!
+		</a>
+
+		Writing the classic hello world program in assembly
+	</div>
+
+	<div class="post">
+		<a class="post-link" href="http://localhost:4000/introduction-to-64-bit-assembly/02-run-script">
+			2. Run script
+		</a>
+
+	  Writing a run script to speed up development
+	</div>
+
+	<div class="post">
+		<a class="post-link" href="http://localhost:4000/introduction-to-64-bit-assembly/03-user-input">
+			3. User input
+		</a>
+
+		Getting input from the user over stdin
+	</div>
+
+	<div class="post">
+		<a class="post-link" href="http://localhost:4000/introduction-to-64-bit-assembly/04-basic-math">
+			4. Basic math
+		</a>
+
+		Add, subtract, multiply, and divide integers
+	</div>
+
+	<div class="post">
+		<a class="post-link" href="http://localhost:4000/introduction-to-64-bit-assembly/05-conditional-branching">
+			5. Conditional branching
+		</a>
+
+		Run different code depending on the values in registers and memory
+	</div>
+
+	<div class="post">
+		<a class="post-link" href="http://localhost:4000/introduction-to-64-bit-assembly/06-looping">
+			6. Looping
+		</a>
+
+		Run the same code over and over
+	</div>
+
+  <p class="rss-subscribe section">
+		subscribe
+		<a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a>
+	</p>
 
 </div>

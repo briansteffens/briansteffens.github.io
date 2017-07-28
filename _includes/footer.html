@@ -1,37 +1,33 @@
+<style>
+
+.footer-col {
+	width: calc(30% - (30px / 2));
+}
+
+.site-footer table {
+	width: 100%;
+}
+
+.site-footer table td {
+	text-align: center;
+}
+
+</style>
+
 <footer class="site-footer">
 
   <div class="wrapper">
 
-    <h2 class="footer-heading">{{ site.title | escape }}</h2>
-
-    <div class="footer-col-wrapper">
-      <div class="footer-col footer-col-1">
-        <ul class="contact-list">
-          <li>{{ site.title | escape }}</li>
-          <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col footer-col-2">
-        <ul class="social-media-list">
-          {% if site.github_username %}
-          <li>
-            {% include icon-github.html username=site.github_username %}
-          </li>
-          {% endif %}
-
-          {% if site.twitter_username %}
-          <li>
-            {% include icon-twitter.html username=site.twitter_username %}
-          </li>
-          {% endif %}
-        </ul>
-      </div>
-
-      <div class="footer-col footer-col-3">
-        <p>{{ site.description | escape }}</p>
-      </div>
-    </div>
+		<table>
+			<tr>
+				<td>
+					{% include icon-github.html username=site.github_username %}
+				</td>
+				<td>
+					{% include icon-twitter.html username=site.twitter_username %}
+				</td>
+			</tr>
+		</table>
 
   </div>
 

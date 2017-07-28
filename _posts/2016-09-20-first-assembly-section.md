@@ -1,6 +1,7 @@
 ---
 layout: post
 title: First assembly guide section
+hide: 1
 ---
 
 <p>
