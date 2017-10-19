@@ -221,22 +221,22 @@ address 1000, we'd get something like this (assuming little-endian):
 | 1001    | 0x05        | Բ         |
 | 1002    | 0x00        | Բ         |
 | 1003    | 0x00        | Բ         |
-| ------- | ----------- | --------- |
+| ...     | ...         | ...       |
 | 1004    | 0x61        | ա         |
 | 1005    | 0x05        | ա         |
 | 1006    | 0x00        | ա         |
 | 1007    | 0x00        | ա         |
-| ------- | ----------- | --------- |
+| ...     | ...         | ...       |
 | 1008    | 0x80        | ր         |
 | 1009    | 0x05        | ր         |
 | 1010    | 0x00        | ր         |
 | 1011    | 0x00        | ր         |
-| ------- | ----------- | --------- |
+| ...     | ...         | ...       |
 | 1012    | 0x65        | ե         |
 | 1013    | 0x05        | ե         |
 | 1014    | 0x00        | ե         |
 | 1015    | 0x00        | ե         |
-| ------- | ----------- | --------- |
+| ...     | ...         | ...       |
 | 1016    | 0x82        | ւ         |
 | 1017    | 0x05        | ւ         |
 | 1018    | 0x00        | ւ         |
@@ -288,7 +288,83 @@ point. The problem with that is when you're reading the data back, how do you
 tell if the code point you're looking at is supposed to be just 1 byte or 4?
 The solution is to put some meta-data in place along with the actual code
 point data being saved. In the table above, you can see that the first byte
-starts with a different set of bits depending on the number of bytes to follow:
+starts with a different set of bits depending on the number of bytes to follow.
 
-- Code points that can be encoded
+This way, no matter what byte you're looking at in a UTF-8 string, you can tell
+what kind of byte it is by checking the bits on the left:
 
+- A byte that starts with `0` is a complete code point that uses only 1 byte.
+- A byte that starts with `110` is the first byte in a code point that uses 2
+  bytes.
+- A byte that starts with `1110` is the first byte in a code point that uses
+  3 bytes.
+- A byte that starts with `11110` is the first byte in a code point that uses
+  4 bytes.
+- A byte that starts with `10` is a continuation byte belonging to a code point
+  that uses 2, 3, or 4 bytes.
+
+Let's encode a Unicode code point with UTF-8. We'll start with 'a':
+
+| Rendering | Code point | Code point in decimal | Code point in binary |
+|-----------|------------|-----------------------|----------------------|
+| a         | U+0061     | 97                    | 1100001              |
+
+In Unicode, U+0061 is the code point 'a', which is 97 in decimal and 1100001
+in binary. Since this code point is in the range 0000 - 007f (less than or
+equal to 127), it only needs 1 byte to be encoded as UTF-8. To do that, we make
+a byte that starts with a `0`, followed by the 7 bits `1100001` for the decimal
+value 97. The final result is `01100001`:
+
+<img src="/blog/unicode-basics/0061.svg" />
+
+The gray bit is the UTF-8 mask indicating that this code point is 1 byte long.
+The remaining 7 blue bits are the code point data: binary for 0x61.
+
+To decode this UTF-8 data, we can check the left-most bit. Since it's 0, that
+means the remaining 7 bits make up the code point.
+
+Something important to note here is that the ASCII code for 'a' is also 97 in
+decimal. In fact, the entire ASCII table from 0 to 127 is valid UTF-8. All
+integers below 128 have the left-most bit set to 0, which matches the mask for
+a single byte code point. This means that any non-extended ASCII string is also
+a valid UTF-8 string.
+
+Now let's encode a larger code point.
+
+| Rendering | Code point | Code point in decimal | Code point in binary |
+|-----------|------------|-----------------------|----------------------|
+| ⋈         | U+22c8     | 8904                  | 10001011001000       |
+
+The code point U+22c8 is 100010110001000 in binary, which is 14 bits. Based on
+the table above, this will require 3 bytes to encode. The 14 bits of U+22c8
+will be broken up into 3 chunks and UTF-8 bit masks will be placed on the left
+side of each chunk to form a UTF-8 code point:
+
+<img src="/blog/unicode-basics/22c8.svg" />
+
+In hex, these 3 bytes are `e2 8b 88`.
+
+The original code point data has been broken up into 3 pieces: 2 bits are in
+the first byte, 6 bits are in the second byte, and 6 bits are in the third
+byte. The bits with gray backgrounds are the UTF-8 bitmask values. The 2 white
+bits in the first byte are unused. If the code point needed 15 or 16 bits to
+encode, they would have been used.
+
+To decode this code point, we'd check the first byte. Since it starts with
+`1110`, we know to take 4 bits from the right side of the first byte, and 6
+bits from the right side of the next 2 bytes. Combining these bits together,
+we're back at the value 8904, or 22c8 in hex.
+
+
+
+
+
+
+
+# Grapheme clusters
+
+Hopefully you're still with me and things are making some semblance of sense.
+If so, I'm going to wreck that right now. What code point do you think this is:
+
+<h3 class="gentium">각</h3>
+<h3>각</h3>
