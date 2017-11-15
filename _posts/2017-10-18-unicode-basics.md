@@ -5,42 +5,14 @@ description: An overview of Unicode and how it relates to various encodings
 ---
 
 <style>
-    table {
-        border-collapse: collapse;
-        margin-bottom: 16px;
-        margin-left: auto;
-        margin-right: auto;
-    }
+    @import url('https://fonts.googleapis.com/earlyaccess/notosanstamil.css');
 
-    th {
-        font-weight: bold;
-    }
-
-    td, th {
-        border: solid 1px #ddd;
-        padding: 6px 13px 6px 13px;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f8f8f8;
-    }
-
-    h1 {
-        border-bottom: solid 1px #eee;
-        margin-top: 24px;
-        font-weight: 600;
-    }
-
-    img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    code.highlighter-rouge, pre.highlight, pre.highlight * {
-        background-color: #f3f3f3 !important;
+    .tamil {
+        font-family: "Noto Sans Tamil";
     }
 </style>
+
+<link rel="stylesheet" href="/css/posts.css" />
 
 Unicode basics
 ==============
@@ -57,7 +29,6 @@ There are a lot of great resources that go into the specifics of various
 aspects of Unicode, but I had a hard time fitting all of the pieces together
 in my mind. In this post, I'll try to summarize and connect the dots between
 the primary concepts.
-
 
 
 
@@ -323,7 +294,8 @@ specifically, a code point in UTF-8 can occupy 8, 16, 24, or 32 bits:
 | 0x0800 - 0xffff  |  3  |1110xxxx|10xxxxxx|10xxxxxx|        | 16           |
 |0x10000 - 0x10ffff|  4  |11110xxx|10xxxxxx|10xxxxxx|10xxxxxx| 21           |
 
-*Copied from https://en.wikipedia.org/wiki/UTF-8*
+*Copied from
+[https://en.wikipedia.org/wiki/UTF-8](https://en.wikipedia.org/wiki/UTF-8).*
 
 The goal here is to only use as many bytes as are needed to encode each code
 point. The problem with that is when you're reading the data back, how do you
@@ -408,7 +380,7 @@ we're back at the value 8904, or 22c8 in hex.
 Hopefully you're still with me and things are making some semblance of sense.
 If so, I'm going to wreck that right now. What code point do you think this is:
 
-<h3>&#x0BA8;&#x0BBF;</h3>
+<h2 class="tamil center">&#x0BA8;&#x0BBF;</h2>
 
 If you guessed that this was a trick question because it's actually TWO code
 points, you're right! This is called the Tamil ni, and it's an example
@@ -417,10 +389,10 @@ produce one character.
 
 Here are the code points which make up the Tamil ni character:
 
-| Rendering | Code point | Description                                        |
-|-----------|------------|----------------------------------------------------|
-| &#x0BA8;  | U+0BA8     | TAMIL LETTER NA                                    |
-| &#x0BBF;  | U+0BBF     | TAMIL VOWEL SIGN I                                 |
+| Rendering                           | Code point | Description              |
+|-------------------------------------|------------|--------------------------|
+| <span class="tamil">&#x0BA8;</span> | U+0BA8     | TAMIL LETTER NA          |
+| <span class="tamil">&#x0BBF;</span> | U+0BBF     | TAMIL VOWEL SIGN I       |
 
 Any time these two code points appear in sequence, they are rendered as a
 single grapheme cluster.
@@ -437,7 +409,7 @@ kinds of text boundaries:
 
 These grapheme break properties can be found at:
 
-http://www.unicode.org/Public/10.0.0/ucd/auxiliary/GraphemeBreakProperty.txt
+[http://www.unicode.org/Public/10.0.0/ucd/auxiliary/GraphemeBreakProperty.txt](http://www.unicode.org/Public/10.0.0/ucd/auxiliary/GraphemeBreakProperty.txt)
 
 The # character starts a comment. Each non-comment line gives a code point
 or range of code points followed by a semi-colon, and then the grapheme break
@@ -446,18 +418,18 @@ file default to the grapheme break property *Other*.
 
 For example, consider the first code point:
 
-| Rendering | Code point | Description                                        |
-|-----------|------------|----------------------------------------------------|
-| &#x0BA8;  | U+0BA8     | TAMIL LETTER NA                                    |
+| Rendering                           | Code point | Description              |
+|-------------------------------------|------------|--------------------------|
+| <span class="tamil">&#x0BA8;</span> | U+0BA8     | TAMIL LETTER NA          |
 
 The code point 0BA8 doesn't appear in the GraphemeBreakProperty.txt file, so it
 defaults to the grapheme break property *Other*.
 
 Next, consider the second code point:
 
-| Rendering | Code point | Description                                        |
-|-----------|------------|----------------------------------------------------|
-| &#x0BBF;  | U+0BBF     | TAMIL VOWEL SIGN I                                 |
+| Rendering                           | Code point | Description              |
+|-------------------------------------|------------|--------------------------|
+| <span class="tamil">&#x0BBF;</span> | U+0BBF     | TAMIL VOWEL SIGN I       |
 
 This is code point 0BBF, which appears in the GraphemeBreakProperty.txt as:
 
@@ -465,13 +437,13 @@ This is code point 0BBF, which appears in the GraphemeBreakProperty.txt as:
 0BBF          ; SpacingMark # Mc       TAMIL VOWEL SIGN I
 ```
 
-This means that the code point ந has a grapheme break property of
-*SpacingMark*. Together, we have:
+This means that the code point <span class="tamil">&#x0BBF;</span> has a
+grapheme break property of *SpacingMark*. Together, we have:
 
-| Rendering | Code point | Grapheme break property                            |
-|-----------|------------|----------------------------------------------------|
-| &#x0BA8;  | U+0BA8     | Other                                              |
-| &#x0BBF;  | U+0BBF     | SpacingMark                                        |
+| Rendering                           | Code point | Grapheme break property  |
+|-------------------------------------|------------|--------------------------|
+| <span class="tamil">&#x0BA8;</span> | U+0BA8     | Other                    |
+| <span class="tamil">&#x0BBF;</span> | U+0BBF     | SpacingMark              |
 
 So we have a code point with a grapheme break property of *Other* followed by
 a code point with *SpacingMark*. How do we know this is a grapheme cluster and
@@ -479,16 +451,22 @@ not just 2 normal code points?
 
 There are a list of rules described here:
 
-http://unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
+[http://unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules](http://unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules)
 
 In this case, we're interested in rule GB9a:
 
-http://unicode.org/reports/tr29/#GB9a
+[http://unicode.org/reports/tr29/#GB9a](http://unicode.org/reports/tr29/#GB9a)
 
 The important text is "Do not break before SpacingMarks, or after Prepend
 characters." So anytime a *SpacingMark* appears, it should be combined with
 whatever comes before it.
 
+These rules can be used to identiy grapheme clusters within Unicode data. For
+example, rules GB6, GB7, and GB8 define how Hangul (the Korean alphabet)
+syllable sequences are formed. GB1 states what may seem pretty obvious: that
+the start of text is always the beginning of a new grapheme or grapheme
+cluster. GB2 states that the last code point is always the end of a grapheme
+or grapheme cluster. 
 
 
 
@@ -499,11 +477,65 @@ whatever comes before it.
 
 Let's look at a complete example to tie these concepts together:
 
-<img src="/blog/unicode-basics/all.svg" />
+We start with 6 bytes of UTF-8 data `E0 AE A8 E0 AE BF`:
 
-We start with 6 bytes of UTF-8 data: `E0 AE A8 E0 AE BF`. We decode this UTF-8
-data to get 2 Unicode code points: `0BA8 0BBF`. Finally, when these code points
-are rendered, they are detected as a single grapheme cluster.
+<img src="/blog/unicode-basics/final-utf8.png" />
 
-So the UTF-8 data is 6 bytes, which is 2 code points, and one rendered
-character.
+The gray bits are the UTF-8 metadata. We can decode it to pull out the actual
+data:
+
+<img src="/blog/unicode-basics/final-decoded.png" />
+
+These bits correspond to 2 Unicode code points: `U+0BA8` and `U+0BBF`.
+
+<img src="/blog/unicode-basics/final-codepoints.png" />
+
+These 2 code points make up a grapheme cluster, so when they're rendered,
+they produce one graphical character:
+
+<img src="/blog/unicode-basics/final-grapheme-clusters.png" />
+
+
+
+
+
+
+# So why do I see those empty boxes?
+
+Unless you're pretty lucky, you've probably seen some empty boxes in place of
+Unicode characters. This happens when a font doesn't contain glyphs necessary
+to render given code points. 
+
+
+
+On macOS:
+
+<img src="/blog/unicode-basics/boxes-macos.png" />
+
+On Linux:
+
+<img src="/blog/unicode-basics/boxes-linux.png" />
+
+My terminal can actually display them both. Score one for the terminal!
+
+<img src="/blog/unicode-basics/boxes-terminal.png" />
+
+Kinda strange that I don't have a program installed by that name.
+
+
+&#x0915;&#x094D;&#x0937;&#x093F;
+&#x26B8;
+
+
+
+
+
+
+
+# Further complications
+
+Unfortunately, this really just scratches the surface of Unicode. As an
+example, the rules given above for determining boundaries between grapheme
+clusters don't actually cover all grapheme clusters: the rules can be
+*tailored* to fit specific languages, dialects, or locales. These are called
+*tailored grapheme clusters*.

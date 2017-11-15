@@ -70,16 +70,6 @@ description: {{ description }}
 '''
 
 
-split_img_hack = '''
-<style>
-    img {
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-</style>
-'''
-
-
 guide_template = post_template + \
         '\n\n<div class="next-guide">{{ next_guide }}</div>'
 
@@ -96,45 +86,6 @@ def convert_markdown(source):
         sys.exit(2)
 
     return res.text.replace('<br>', '')
-
-
-def process_post(source_fn, destination_fn, title, description):
-    with open(source_fn) as f:
-        body = convert_markdown(f.read())
-
-    output = post_template
-
-    if 'split-buffers' in destination_fn:
-        output += split_img_hack
-
-    output = output.replace('{{ body }}', body)
-    output = output.replace('{{ title }}', title)
-    output = output.replace('{{ description }}', description)
-
-    with open(destination_fn, 'w') as f:
-        f.write(output)
-
-
-#process_post('blog/from-math-to-machine/post.md',
-#             '_posts/2017-02-20-from-math-to-machine.md',
-#             'From math to machine',
-#             'Compare and contrast how a factorial function can be '
-#             'represented in math, Haskell, C, assembly, and machine code')
-#
-#process_post('blog/split-buffers/post.md',
-#             '_posts/2017-06-19-split-buffers.md',
-#             'Split buffers',
-#             'A variation of the gap buffer data structure for text editors')
-#
-#process_post('blog/google-sheets-virtual-machine/post.md',
-#             '_posts/2017-07-03-google-sheets-virtual-machine.md',
-#             'Google Sheets virtual machine',
-#             'A simple virtual machine demonstration inside a spreadsheet')
-
-#process_post('blog/unicode-basics/post.md',
-#             '_posts/2017-10-18-unicode-basics.md',
-#             'Unicode basics',
-#             'An overview of Unicode and how it relates to various encodings')
 
 
 def process_guide(guide, next_guide):
