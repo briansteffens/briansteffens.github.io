@@ -1,3 +1,47 @@
+---
+layout: default
+title: Unicode basics
+description: An overview of Unicode and how it relates to various encodings
+---
+
+<style>
+    table {
+        border-collapse: collapse;
+        margin-bottom: 16px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    th {
+        font-weight: bold;
+    }
+
+    td, th {
+        border: solid 1px #ddd;
+        padding: 6px 13px 6px 13px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f8f8f8;
+    }
+
+    h1 {
+        border-bottom: solid 1px #eee;
+        margin-top: 24px;
+        font-weight: 600;
+    }
+
+    img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    code.highlighter-rouge, pre.highlight, pre.highlight * {
+        background-color: #f3f3f3 !important;
+    }
+</style>
+
 Unicode basics
 ==============
 
@@ -13,8 +57,6 @@ There are a lot of great resources that go into the specifics of various
 aspects of Unicode, but I had a hard time fitting all of the pieces together
 in my mind. In this post, I'll try to summarize and connect the dots between
 the primary concepts.
-
-
 
 
 
@@ -366,5 +408,102 @@ we're back at the value 8904, or 22c8 in hex.
 Hopefully you're still with me and things are making some semblance of sense.
 If so, I'm going to wreck that right now. What code point do you think this is:
 
-<h3 class="gentium">각</h3>
-<h3>각</h3>
+<h3>&#x0BA8;&#x0BBF;</h3>
+
+If you guessed that this was a trick question because it's actually TWO code
+points, you're right! This is called the Tamil ni, and it's an example
+of a Unicode *grapheme cluster*: a cluster of code points which together
+produce one character.
+
+Here are the code points which make up the Tamil ni character:
+
+| Rendering | Code point | Description                                        |
+|-----------|------------|----------------------------------------------------|
+| &#x0BA8;  | U+0BA8     | TAMIL LETTER NA                                    |
+| &#x0BBF;  | U+0BBF     | TAMIL VOWEL SIGN I                                 |
+
+Any time these two code points appear in sequence, they are rendered as a
+single grapheme cluster.
+
+In order to detect a grapheme cluster, we first need to figure out what the
+*grapheme break property* is for each code point. Each Unicode code point has a
+grapheme break property associated with it.  This is basically a category
+that helps in figuring out what role a code point plays with regard to several
+kinds of text boundaries:
+
+- Grapheme boundaries (characters)
+- Word boundaries
+- Newline boundaries
+
+These grapheme break properties can be found at:
+
+http://www.unicode.org/Public/10.0.0/ucd/auxiliary/GraphemeBreakProperty.txt
+
+The # character starts a comment. Each non-comment line gives a code point
+or range of code points followed by a semi-colon, and then the grapheme break
+property for that code point (or code points). Code points not listed in this
+file default to the grapheme break property *Other*.
+
+For example, consider the first code point:
+
+| Rendering | Code point | Description                                        |
+|-----------|------------|----------------------------------------------------|
+| &#x0BA8;  | U+0BA8     | TAMIL LETTER NA                                    |
+
+The code point 0BA8 doesn't appear in the GraphemeBreakProperty.txt file, so it
+defaults to the grapheme break property *Other*.
+
+Next, consider the second code point:
+
+| Rendering | Code point | Description                                        |
+|-----------|------------|----------------------------------------------------|
+| &#x0BBF;  | U+0BBF     | TAMIL VOWEL SIGN I                                 |
+
+This is code point 0BBF, which appears in the GraphemeBreakProperty.txt as:
+
+```
+0BBF          ; SpacingMark # Mc       TAMIL VOWEL SIGN I
+```
+
+This means that the code point ந has a grapheme break property of
+*SpacingMark*. Together, we have:
+
+| Rendering | Code point | Grapheme break property                            |
+|-----------|------------|----------------------------------------------------|
+| &#x0BA8;  | U+0BA8     | Other                                              |
+| &#x0BBF;  | U+0BBF     | SpacingMark                                        |
+
+So we have a code point with a grapheme break property of *Other* followed by
+a code point with *SpacingMark*. How do we know this is a grapheme cluster and
+not just 2 normal code points?
+
+There are a list of rules described here:
+
+http://unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
+
+In this case, we're interested in rule GB9a:
+
+http://unicode.org/reports/tr29/#GB9a
+
+The important text is "Do not break before SpacingMarks, or after Prepend
+characters." So anytime a *SpacingMark* appears, it should be combined with
+whatever comes before it.
+
+
+
+
+
+
+
+# Putting it all together
+
+Let's look at a complete example to tie these concepts together:
+
+<img src="/blog/unicode-basics/all.svg" />
+
+We start with 6 bytes of UTF-8 data: `E0 AE A8 E0 AE BF`. We decode this UTF-8
+data to get 2 Unicode code points: `0BA8 0BBF`. Finally, when these code points
+are rendered, they are detected as a single grapheme cluster.
+
+So the UTF-8 data is 6 bytes, which is 2 code points, and one rendered
+character.

@@ -131,10 +131,10 @@ def process_post(source_fn, destination_fn, title, description):
 #             'Google Sheets virtual machine',
 #             'A simple virtual machine demonstration inside a spreadsheet')
 
-process_post('blog/unicode-basics/post.md',
-             '_posts/2017-10-18-unicode-basics.md',
-             'Unicode basics',
-             'An overview of Unicode and how it relates to various encodings')
+#process_post('blog/unicode-basics/post.md',
+#             '_posts/2017-10-18-unicode-basics.md',
+#             'Unicode basics',
+#             'An overview of Unicode and how it relates to various encodings')
 
 
 def process_guide(guide, next_guide):
