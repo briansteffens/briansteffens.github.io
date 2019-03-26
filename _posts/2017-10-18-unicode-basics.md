@@ -31,9 +31,9 @@ While doing some research on adding Unicode support to my toy compiler
 <a href="https://github.com/briansteffens/bshift" target="_blank">bshift</a>,
 I quickly realized just how little I understood about Unicode. This is
 interesting, because I've been programming for awhile and nearly all text data
-is in Unicode these days. It's amazing (or maybe scary) how much code I've
-written to process, store, and validate textual data without a great
-understanding of the format that data is in.
+is Unicode these days. It's amazing (or maybe scary) how much code I've written
+to process, store, and validate textual data without a great understanding of
+the format that data is in.
 
 There are a lot of great resources that go into the specifics of various
 aspects of Unicode, but I had a hard time fitting all of the pieces together
@@ -93,26 +93,26 @@ ASCII table:
 </div>
 
 Each number from 0 to 127 (or 255 in the case of extended ASCII) corresponds
-to a character. 32 is a space, 97 is the letter *a*, 37 is the percent sign
-*%*, and so on.
+to a character. 32 is a space, 97 is the letter `a`, 37 is the percent sign
+`%`, and so on.
 
-Consider the string "Greetings!". To represent this string in ASCII, you would
-look up each character in the table to get its ASCII code:
+Consider the string `"Greetings!"`. To represent this string in ASCII, you
+would look up each character in the table to get its ASCII code:
 
 |  G  |  r  |  e  |  e  |  t  |  i  |  n  |  g  |  s  |  !  |
 |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | 71  | 114 | 101 | 101 | 116 | 105 | 110 | 103 | 115 | 33  |
 
-Notice that the character *e* has the same code in both places: 101.
+Notice that the character `e` has the same code in both places: 101.
 
 So we have a string of text and we've converted it into a series of ASCII
-codes. The next question is how we should represent this in memory. Notice that
-ASCII codes range from 0 to 127 (or 0 to 255 in the case of extended ASCII).
-Since a byte can store up to 256 unique values, that makes it a pretty natural
-way to store an ASCII character. So an ASCII string is frequently represented
-as a series of sequential bytes in memory.
+codes. The next question is how we should represent this in memory. ASCII codes
+range from 0 to 127 (or 0 to 255 in the case of extended ASCII). Since a byte
+can store up to 256 unique values, that makes it a pretty natural way to store
+an ASCII character. So an ASCII string is frequently represented as a series of
+sequential bytes in memory.
 
-If we allocated the string "Greetings!" in C:
+If we allocated the string `"Greetings!"` in C:
 
 ```c
 int main()
@@ -123,7 +123,7 @@ int main()
 }
 ```
 
-The string would end up loaded into memory when we ran the program. The actual
+The string would be loaded into memory when we ran the program. The actual
 address it gets isn't important. Let's imagine it shows up at the address 1000.
 Then, that subset of memory would look like this:
 
@@ -150,9 +150,9 @@ no length information accompanies this pointer, a marker is necessary so you
 can find the end of the string. C uses the NULL character as this marker and
 automatically adds it to the end of string literals like `"Greetings!"`.
 
-ASCII keeps things reasonably straightforward: each character (like *a*) can be
-represented by a code (like *97*) which fits in a single byte. Okay, great.
-You can write all kinds of text, including a few symbols.
+ASCII keeps things reasonably straightforward: each character (like `a`) can be
+represented by a code (like `97`) which fits in a single byte. Okay, great.
+You can write a bunch of text, including a few symbols.
 
 But what happens when you want to use, say, a Korean character? In ASCII,
 you're out of luck. You'll have to switch to an entirely different encoding
@@ -160,12 +160,16 @@ like EUC-KR. EUC-KR isn't just a different set of characters from ASCII, it
 works quite differently. The number of character codes in EUC-KR doesn't fit
 into a single byte, so some characters require more than one byte.
 
-Writing code to support text becomes pretty complicated. Do you write special
-code to support each language and make the user choose the language they want
-to write in? Do you try to build some kind of meta-encoding where you can mix
-and match encodings within the same document? How do you detect which encoding
-you're looking at when parsing a file? It's a pretty bad situation and led to a
-lot of programs only supporting a single language.
+Writing code to support text becomes pretty complicated:
+
+- Do you write special code to support each language and make the user choose
+  the language they want to write in?
+- Do you try to build some kind of meta-encoding where you can mix and match
+  encodings within the same document?
+- How do you detect which encoding you're looking at when parsing a file?
+
+It's a pretty bad situation and led to a lot of programs only supporting a
+single language.
 
 
 
@@ -177,14 +181,15 @@ lot of programs only supporting a single language.
 
 # Unicode to the rescue
 
-So now we know what text looked like before Unicode. Let's see how Unicode
-attempts to solve this problem. There's a hint to how Unicode works right in
-the name: Unicode is a *unified* character set. Whereas ASCII concerns itself
-mostly with Latin characters, EUC-KR supports Korean text, EUC-JP support
-Japanese text, and so on, Unicode defines a standard capable of supporting all
-written languages at once, within a single character set.
+So now we have an idea of how text worked before Unicode and some of the
+associated problems. Let's see how Unicode solves these problems. There's a
+hint to how Unicode works right in the name: Unicode is a *unified* character
+set. Whereas ASCII concerns itself mostly with Latin characters, EUC-KR
+supports Korean text, EUC-JP support Japanese text, and so on, Unicode defines
+a standard capable of supporting all written languages at once within a single
+character set.
 
-Here's a tiny subset of the characters in Unicode:
+Here's a *tiny* subset of the characters in Unicode:
 
 | Code point | Character | Category                 |
 |------------|-----------|--------------------------|
@@ -200,24 +205,25 @@ Here's a tiny subset of the characters in Unicode:
 | U+22c7     | ⋇         | Mathematical Operators   |
 | U+22c8     | ⋈         | Mathematical Operators   |
 | ...        | ...       | ...                      |
+| U+1F602    | &#x1F602; | Emoji                    |
+| ...        | ...       | ...                      |
 
 *For a full list, see
 [http://www.unicode.org/charts/](http://www.unicode.org/charts/).*
 
-We've got Latin, Armenian, Hebrew, and even symbols from math, all in the same
-character set. You no longer have to choose which set of characters or
-languages you want to support: you can have them all, including mixing and
-matching them.
+We've got Latin, Armenian, Hebrew, symbols from math, and even emojis all in
+the same character set. You no longer have to choose which set of characters or
+languages you want to support: you can use them all at once.
 
-Unicode basically works the same as ASCII, except that the range of values is
+Unicode essentially works the same as ASCII, except that the range of values is
 much wider. In the chart above, the *code point* is the code that a character
 corresponds to. Just like how the ASCII code 97 refers to the Latin character
-*a*, code point U+05d0 refers to the Hebrew letter aleph *א*.
+`a`, code point `U+05d0` refers to the Hebrew letter aleph `א`.
 
 Let's break down the code point. The prefix `U+` is there to indicate that it's
-a Unicode code point and not just a random hex value. After the prefix is the
-hexadecimal value 05d0, which is 1488 in decimal. Unicode code points are
-usually given in hexadecimal, but they're still just numbers which map to
+a Unicode code point and not just a random hex value. After the prefix comes
+the hexadecimal value `05d0`, which is `1488` in decimal. Unicode code points
+are usually given in hexadecimal, but they're still just integers which map to
 elements of text like characters and symbols.
 
 
@@ -242,11 +248,11 @@ x86 processors, the integer sizes that are easiest to work with are:
 | double word | 4     | 32   |
 | quadword    | 8     | 64   |
 
-Of these, the smallest one that can also store at least 21 bits is the 4-byte
-/ 32-bit integer. If we store each Unicode code point in a 32-bit integer, a
+Of these, the smallest one that can store at least 21 bits is the 4-byte /
+32-bit integer. If we store each Unicode code point in a 32-bit integer, a
 Unicode string will occupy 4 times the amount of memory that the same string
-would in ASCII. As a result, there is a lot of interest in finding more
-compact ways to represent Unicode in memory. This brings us to encodings.
+would in ASCII. As a result, there is a lot of interest in finding more compact
+ways to represent Unicode in memory. This brings us to encodings.
 
 
 
@@ -259,7 +265,7 @@ compact ways to represent Unicode in memory. This brings us to encodings.
 Unicode itself is a character set: a mapping from numerical code points to
 characters and other symbols. This tells us nothing about how to structure
 those numeric values in memory. There are several different ways to store
-Unicode in memory. Here are some of the more common ones:
+Unicode in memory. Here are some of the more common encodings:
 
 | Encoding name | Space per code point | Variable- or fixed-width |
 |---------------|----------------------|--------------------------|
@@ -279,7 +285,7 @@ to work with because each code point uses the same amount of space.
 # UTF-32
 
 UTF-32 is probably the most natural way to encode Unicode data. Each code point
-is stored directly into memory with no attempt to save space. Let's take the
+is stored directly in memory with no attempt to save space. Let's take the
 Unicode string "Բարեւ", which Google Translate assures me is Armenian for
 "hello". These five Armenian characters correspond to the following five
 Unicode code points:
@@ -327,12 +333,12 @@ integers. So in a way, half of these bytes are wasted. This gets even worse
 with Latin characters, which are small enough to need only 1 byte to store.
 
 We can see that UTF-32 is not very space-efficient for these code points, so
-why would anyone use it?  The first benefit is that the encoding is pretty
-simple: code points map directly into memory with no complexity added by trying
-to save space.
+why would anyone use it?  The first benefit is the encoding is pretty simple:
+code points map directly into memory with no complexity added by trying to save
+space.
 
-Another benefit is that indexing into the string is fast because each code
-point occupies a fixed amount of space. To find the nth code point in a UTF-32
+Another benefit is indexing into the string is fast because each code point
+occupies a fixed amount of space. To find the nth code point in a UTF-32
 string, add `4 * n` to the starting address of the string. This is a constant
 time operation, which means that no matter what size the string is, indexing
 any code point within it will take the same amount of time.
@@ -357,6 +363,26 @@ occupies *at least* 8 bits of space. More specifically, a code point in UTF-8
 can occupy 8, 16, 24, or 32 bits. This makes UTF-8 a variable-width encoding.
 Different code points require different amounts of space:
 
+|Code points       |Bytes|
+|------------------|-----|
+| 0x0000 - 0x007f  |  1  |
+| 0x0080 - 0x07ff  |  2  |
+| 0x0800 - 0xffff  |  3  |
+|0x10000 - 0x10ffff|  4  |
+
+The first 128 code points, from `0x0000` to `0x007f`, occupy one byte each.
+The next 1920 code points, from `0x0080` to `0x07ff`, occupy two bytes each.
+And so on, up to four bytes per code point. The goal here is to use as few
+bytes as possible to store each code point.
+
+But there's a problem! Since each code point can occupy 1, 2, 3, or 4 bytes,
+how do you tell if a byte you're looking at it is a single 1-byte code point,
+the third byte in a 4-byte code point, etc?
+
+UTF-8 solves this by including some metadata along with the actual code point
+data. The first bits in each byte tell you how to interpret the rest of the
+byte:
+
 |Code points       |Bytes| Byte 1 | Byte 2 | Byte 3 | Byte 4 | Bits encoded |
 |------------------|-----|--------|--------|--------|--------|--------------|
 | 0x0000 - 0x007f  |  1  |0xxxxxxx|        |        |        | 7            |
@@ -367,15 +393,10 @@ Different code points require different amounts of space:
 *Copied from
 [https://en.wikipedia.org/wiki/UTF-8](https://en.wikipedia.org/wiki/UTF-8).*
 
-The goal here is to use as few bytes as possible to store each code point. One
-problem is when you're reading the data back, how do you tell if the code point
-you're looking at is supposed to be just 1 byte or 4?  The solution is to put
-some metadata in place along with the actual code point data. In the table
-above, you can see that the first byte starts with a different set of bits
-depending on the number of bytes to follow.
-
-This way, no matter which byte you're looking at in a UTF-8 string, you can
-tell what kind of byte it is by checking the bits on the left:
+In the table above, you can see that the first byte starts with a different set
+of bits depending on the number of bytes to follow. This way, no matter which
+byte you're looking at in a UTF-8 string, you can tell what kind of byte it is
+by checking the bits on the left:
 
 - A byte that starts with `0` is a complete code point that uses only 1 byte.
 - A byte that starts with `110` is the first byte in a code point that uses 2
@@ -431,7 +452,7 @@ In hex, these 3 bytes are `e2 8b 88`.
 The original code point data has been broken up into 3 pieces: 2 bits are in
 the first byte, 6 bits are in the second byte, and 6 bits are in the third
 byte. The bits with gray backgrounds make up the UTF-8 metadata. The 2 white
-bits in the first byte are unused, since we only needed 14 bits to store this
+bits in the first byte are unused, since we only need 14 bits to store this
 value.
 
 To decode this code point, we start by checking the first byte. Since it starts
@@ -459,7 +480,7 @@ Which code point do you think this is:
 
 <h2 class="tamil center">&#x0BA8;&#x0BBF;</h2>
 
-If you guessed this was a trick question because it's actually TWO code
+If you guessed that was a trick question because it's actually TWO code
 points, you're right! This is called the Tamil ni, and it's an example
 of a Unicode *grapheme cluster*: a group of multiple code points which
 together produce one graphical character.
@@ -476,8 +497,8 @@ single grapheme cluster.
 
 In order to detect a grapheme cluster, we first need to figure out what the
 *grapheme break property* is for each code point. Each Unicode code point has a
-grapheme break property associated with it. This is basically a category
-that helps us figure out how code points combine to produce grapheme clusters.
+grapheme break property associated with it. This is a category that helps us
+figure out how code points combine to produce grapheme clusters.
 
 These grapheme break properties can be found in the data file at
 [http://www.unicode.org/Public/10.0.0/ucd/auxiliary/GraphemeBreakProperty.txt](http://www.unicode.org/Public/10.0.0/ucd/auxiliary/GraphemeBreakProperty.txt).
@@ -517,8 +538,8 @@ This means the code point U+0BBF has a grapheme break property of
 | <span class="tamil">&#x0BA8;</span> | U+0BA8     | Other                    |
 | <span class="tamil">&#x0BBF;</span> | U+0BBF     | SpacingMark              |
 
-So we have an *Other* followed by a *SpacingMark*.  How do we know this is a
-grapheme cluster and not just 2 normal code points?
+So we have an *Other* followed by a *SpacingMark*. How do we know this is a
+grapheme cluster rather than two separate characters?
 
 The Unicode standard defines a list of
 [grapheme cluster boundary rules](http://unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules). Each rule defines how a pair of grapheme break properties
@@ -537,11 +558,11 @@ before it. In the Tamil ni character, an *Other* code point is
 followed by a *SpacingMark* code point, which means they make up a single
 grapheme cluster.
 
-The rest of the rules can be used similarly. For example, rules GB6, GB7, and
-GB8 define how Hangul (the Korean alphabet) syllable sequences are formed. GB1
-states what may seem pretty obvious: that the start of text is always the
-beginning of a new grapheme or grapheme cluster. GB2 states that the last code
-point is always the end of a grapheme or grapheme cluster.
+The rest of the rules can be interpreted similarly. For example, rules GB6,
+GB7, and GB8 define how Hangul (the Korean alphabet) syllable sequences are
+formed. GB1 states what may seem pretty obvious: that the start of text is
+always the beginning of a new grapheme or grapheme cluster. GB2 states that the
+last code point is always the end of a grapheme or grapheme cluster.
 
 
 
@@ -567,14 +588,14 @@ is GB999, which says that if none of the other rules matched, break. So we
 know the third code point starts a new grapheme cluster. Finally, we have a
 *SpacingMark* code point. According to rule GB9a, we shouldn't break before a
 *SpacingMark* code point. So we have 2 grapheme clusters: `U+0915 + U+094D` and
-`U+0937 + U+093F`. Let's render these four code points and see if we were
+`U+0937 + U+093F`. Let's render these four code points and see if we're
 right:
 
 <h2 class="devanagari center">
     &#x0915;&#x094D;&#x0937;&#x093F;
 </h2>
 
-Whoops. That definitely looks and acts like a single grapheme. Did we apply
+Whoops. That definitely looks and acts like a single character. Did we apply
 the rules incorrectly? Unfortunately, no. It turns out that the 16
 grapheme break rules defined by the Unicode spec can't cover all of the
 intricacies of written human language (weird, right?). So the Unicode
@@ -584,7 +605,7 @@ their requirements.
 <span class="devanagari">&#x0915;&#x094D;&#x0937;&#x093F;</span> is one such
 *tailored grapheme cluster*. The rules for what constitutes a tailored grapheme
 cluster vary greatly by writing system, and is far out of scope for this
-post, but it's helpful to be aware that they exist.
+post, but it's good to be aware that they exist.
 
 
 
@@ -594,18 +615,17 @@ post, but it's helpful to be aware that they exist.
 
 # Putting it all together
 
-Let's look at a complete example to tie these concepts together:
-
-We start with 6 bytes of UTF-8 data `E0 AE A8 E0 AE BF`:
+Let's look at a complete example to tie these concepts together. We start with
+6 bytes of UTF-8 data `E0 AE A8 E0 AE BF`:
 
 <img src="/blog/unicode-basics/final-utf8.png" />
 
-The gray bits are the UTF-8 metadata. We can decode it to pull out the actual
-data:
+The gray bits are the UTF-8 metadata. We can decode it to pull out the code
+points:
 
 <img src="/blog/unicode-basics/final-decoded.png" />
 
-These bits correspond to 2 Unicode code points: `U+0BA8` and `U+0BBF`.
+These bits correspond to 2 Unicode code points, `U+0BA8` and `U+0BBF`:
 
 <img src="/blog/unicode-basics/final-codepoints.png" />
 
@@ -643,12 +663,12 @@ see any. Here's what that list of code points looks like on my Linux machine:
 
 And here they are on my macOS laptop:
 
-So you can see that support for Unicode varies a lot. What can you do if you
-need to use a particular language or set of symbols in, say, a blog post and
-you want to make sure that everyone can see them? You can take a screenshot
+So you can see that support for Unicode varies quite a bit. What can you do if
+you need to use a particular language or set of symbols in, say, a blog post
+and you want to make sure everyone can see them? You can take a screenshot
 and embed an image of the text you want to display, but then you lose the
-ability to do things like copy/paste and search for the text on the page.
-A better way to do it is to use a webfont with support for the characters you
+ability to do things like copy/paste and search for the text on the page. A
+better way to go is to use a webfont with support for the characters you
 need.
 
 Let's take the first character from above:
@@ -661,7 +681,7 @@ Chrome running on my Linux laptop can't display this. Interestingly, the
 terminal on the same system *can*. Yet more proof of the superiority of
 terminals!
 
-To get it to show up in this blog post properly regardless of the fonts
+To get it to show up in this blog post properly, regardless of the fonts
 available on the computer viewing it, I used a Google Noto web font. Google
 Noto is a project to build a font family supporting all of Unicode:
 
@@ -703,9 +723,9 @@ too):
 
 # Escaping Unicode code points in HTML
 
-Notice that above, I pasted the Devanagari character directly into the HTML
-file. Even though my terminal can display the character, Vim seems to get a bit
-confused and it causes some minor rendering issues.
+Above, I pasted the Devanagari character directly into the HTML file. Even
+though my terminal can display the character, Vim seems to get a bit confused
+and it causes some minor rendering issues.
 
 In order to prevent that, you can escape Unicode code points in HTML by putting
 the code point (in hex) between `&#x` and `;`. So the letter 'a', which is
@@ -733,8 +753,6 @@ portable by escaping these four code points:
     &#x0915;&#x094D;&#x0937;&#x093F;
 </span>
 ```
-
-
 
 
 
