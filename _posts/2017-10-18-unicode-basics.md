@@ -103,7 +103,7 @@ would look up each character in the table to get its ASCII code:
 |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | 71  | 114 | 101 | 101 | 116 | 105 | 110 | 103 | 115 | 33  |
 
-Notice that the character `e` has the same code in both places: 101.
+Notice the character `e` has the same code in both places: 101.
 
 So we have a string of text and we've converted it into a series of ASCII
 codes. The next question is how we should represent this in memory. ASCII codes
@@ -124,8 +124,8 @@ int main()
 ```
 
 The string would be loaded into memory when we ran the program. The actual
-address it gets isn't important. Let's imagine it shows up at the address 1000.
-Then, that subset of memory would look like this:
+address it gets isn't important, so let's imagine it shows up at address 1000.
+The memory starting at address 1000 would look like this:
 
 | Address | Byte value in memory | ASCII character |
 |---------|----------------------|-----------------|
@@ -145,9 +145,9 @@ Starting at 1000, each address refers to a byte. Each of these bytes stores an
 ASCII code, which corresponds to a character in the ASCII table.
 
 The NULL character is a marker for the end of the string. In C, strings are
-passed around as pointers to the beginning of the string data in memory. Since
-no length information accompanies this pointer, a marker is necessary so you
-can find the end of the string. C uses the NULL character as this marker and
+passed around as pointers to the first address of a string in memory. Since no
+length information accompanies this pointer, a marker is necessary so you can
+find the end of the string. C uses the NULL character as this marker and
 automatically adds it to the end of string literals like `"Greetings!"`.
 
 ASCII keeps things reasonably straightforward: each character (like `a`) can be
@@ -182,12 +182,13 @@ single language.
 # Unicode to the rescue
 
 So now we have an idea of how text worked before Unicode and some of the
-associated problems. Let's see how Unicode solves these problems. There's a
-hint to how Unicode works right in the name: Unicode is a *unified* character
-set. Whereas ASCII concerns itself mostly with Latin characters, EUC-KR
-supports Korean text, EUC-JP support Japanese text, and so on, Unicode defines
-a standard capable of supporting all written languages at once within a single
-character set.
+associated problems. Let's see how Unicode solves these problems.
+
+There's a hint to how Unicode works right in the name: Unicode is a *unified*
+character set. Whereas ASCII concerns itself mostly with Latin characters,
+EUC-KR supports Korean text, EUC-JP support Japanese text, and so on, Unicode
+defines a standard capable of supporting all written languages at once within a
+single character set.
 
 Here's a *tiny* subset of the characters in Unicode:
 
@@ -218,12 +219,12 @@ languages you want to support: you can use them all at once.
 Unicode essentially works the same as ASCII, except that the range of values is
 much wider. In the chart above, the *code point* is the code that a character
 corresponds to. Just like how the ASCII code 97 refers to the Latin character
-`a`, code point `U+05d0` refers to the Hebrew letter aleph `א`.
+`a`, the Unicode code point `U+05d0` refers to the Hebrew letter aleph `א`.
 
 Let's break down the code point. The prefix `U+` is there to indicate that it's
 a Unicode code point and not just a random hex value. After the prefix comes
-the hexadecimal value `05d0`, which is `1488` in decimal. Unicode code points
-are usually given in hexadecimal, but they're still just integers which map to
+the hexadecimal value `05d0`, which is `1488` in decimal. Code points are
+usually given in hexadecimal, but they're still just integers which map to
 elements of text like characters and symbols.
 
 
@@ -250,8 +251,8 @@ x86 processors, the integer sizes that are easiest to work with are:
 
 Of these, the smallest one that can store at least 21 bits is the 4-byte /
 32-bit integer. If we store each Unicode code point in a 32-bit integer, a
-Unicode string will occupy 4 times the amount of memory that the same string
-would in ASCII. As a result, there is a lot of interest in finding more compact
+Unicode string will occupy 4 times the amount of memory as the same string
+in ASCII. As a result, there is a lot of interest in finding more compact
 ways to represent Unicode in memory. This brings us to encodings.
 
 
@@ -299,7 +300,7 @@ Unicode code points:
 | U+0582     | ւ         |
 
 Saving each of these code points directly into memory starting at address 1000,
-we'd get something like this (assuming little-endian):
+we'd get something like this (assuming little-endian byte order):
 
 | Address | Value (hex) | Character |
 |---------|-------------|-----------|
@@ -333,7 +334,7 @@ integers. So in a way, half of these bytes are wasted. This gets even worse
 with Latin characters, which are small enough to need only 1 byte to store.
 
 We can see that UTF-32 is not very space-efficient for these code points, so
-why would anyone use it?  The first benefit is the encoding is pretty simple:
+why would anyone use it? The first benefit is the encoding is pretty simple:
 code points map directly into memory with no complexity added by trying to save
 space.
 
@@ -376,8 +377,8 @@ And so on, up to four bytes per code point. The goal here is to use as few
 bytes as possible to store each code point.
 
 But there's a problem! Since each code point can occupy 1, 2, 3, or 4 bytes,
-how do you tell if a byte you're looking at it is a single 1-byte code point,
-the third byte in a 4-byte code point, etc?
+how do you tell if a specific byte is meant to be interpreted as a single
+1-byte code point or the third byte in a 4-byte code point or something else?
 
 UTF-8 solves this by including some metadata along with the actual code point
 data. The first bits in each byte tell you how to interpret the rest of the
@@ -421,29 +422,29 @@ a `0`, followed by the 7 bits `1100001`. The result is `01100001`:
 
 <img src="/blog/unicode-basics/0061.svg" />
 
-The gray bit is the UTF-8 metadata indicating that this code point is 1 byte
-long. The remaining 7 blue bits are the code point data: binary for 0x61.
+The gray bit is UTF-8 metadata indicating that this code point is 1 byte
+long. The remaining 7 blue bits are the code point data: binary for `0x61`.
 
 To decode this UTF-8 data, we can check the left-most bit. Since it's 0, we
 know that this code point occupies one byte. The remaining 7 bits make up the
 code point.
 
-Something important to note here is that the ASCII code for 'a' is also 0x61 in
-hex. In fact, the entire ASCII table from 0 to 127 is valid UTF-8. All
-unsigned 8-bit integers below 128 have the left-most bit set to 0, which
-matches the UTF-8 metadata for a single byte code point. This means that any
-non-extended ASCII string is also a valid UTF-8 string.
+Something important to note is the ASCII code for 'a' is also `0x61` in hex. In
+fact, the entire ASCII table from 0 to 127 is valid UTF-8. All unsigned 8-bit
+integers below 128 have the left-most bit set to 0, which matches the UTF-8
+metadata for a single-byte code point. This means that any non-extended ASCII
+string is also a valid UTF-8 string.
 
-Now let's encode a larger code point.
+Now let's encode a larger code point:
 
 | Rendering | Code point | Code point in decimal | Code point in binary |
 |-----------|------------|-----------------------|----------------------|
 | ⋈         | U+22c8     | 8904                  | 10001011001000       |
 
-The code point U+22c8 is `100010110001000` in binary, which is 14 bits. Based
-on the table above, this will require 3 bytes to encode. The 14 bits of U+22c8
-will be broken up into 3 chunks and UTF-8 metadata will be placed on the left
-side of each chunk to form a UTF-8 code point:
+The code point U+22c8 is `100010110001000` in binary, which requires 14 bits to
+store. Based on the table above, this will require 3 bytes to encode. The 14
+bits of U+22c8 will be broken up into 3 chunks and UTF-8 metadata will be
+placed on the left side of each chunk to form 3 bytes of UTF-8 data:
 
 <img src="/blog/unicode-basics/22c8.svg" />
 
@@ -620,7 +621,7 @@ Let's look at a complete example to tie these concepts together. We start with
 
 <img src="/blog/unicode-basics/final-utf8.png" />
 
-The gray bits are the UTF-8 metadata. We can decode it to pull out the code
+The gray bits are the UTF-8 metadata. We can decode this to extract the code
 points:
 
 <img src="/blog/unicode-basics/final-decoded.png" />
@@ -658,10 +659,14 @@ to render given code points. Here are a bunch of random code points:
 </h2>
 
 Some or many of these will show up as rectangles, possibly with hex values
-inside them. If you have really, really good Unicode support, you might not
-see any. Here's what that list of code points looks like on my Linux machine:
+inside. If you have really, really good Unicode support, you might not see any.
+Here's what that list of code points looks like on my Linux machine:
+
+<img src="/blog/unicode-basics/final-linux.png" />
 
 And here they are on my macOS laptop:
+
+<img src="/blog/unicode-basics/final-macos.png" />
 
 So you can see that support for Unicode varies quite a bit. What can you do if
 you need to use a particular language or set of symbols in, say, a blog post
@@ -753,10 +758,3 @@ portable by escaping these four code points:
     &#x0915;&#x094D;&#x0937;&#x093F;
 </span>
 ```
-
-
-
-
-
-
-http://shapecatcher.com/
