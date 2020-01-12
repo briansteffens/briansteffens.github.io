@@ -89,7 +89,9 @@ For example, the factorial of 5 is:</p>
 <tr>
 <td>5!</td>
 <td>120</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <p>One important use of factorials is calculating the total number of permutations
 of a set. For example, the string "cat" can be rearranged in 6 possible ways:
 "cat", "act", "atc", "tac", "tca", and "cta".  This string has 3 letters
@@ -107,7 +109,7 @@ if only so you know to try to find a faster way to solve the problem.</p>
 are also lots of ways to describe things to computers. Let's start with
 Haskell, which among other useful features, happens to have a pretty cool
 looking logo:</p>
-<p><a href="/blog/from-math-to-machine/haskell-logo.svg" target="_blank"><img width="50%" src="/blog/from-math-to-machine/haskell-logo.svg" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/from-math-to-machine/haskell-logo.svg"><img width="50%" src="/blog/from-math-to-machine/haskell-logo.svg" style="max-width:100%;"></a></p>
 <p>Haskell is a purely functional language. In broad terms, this means that
 instead of telling the computer <em>what to do</em>, a Haskell program tells the
 computer <em>what things are</em>. Once a program has been written in Haskell, it's
@@ -167,7 +169,7 @@ factorial <span class="pl-c1">5</span> <span class="pl-c"><span class="pl-c">--<
 style of a functional programming language. Now we'll go another level deeper
 and see the same thing in an imperative language called C, which I like quite a
 bit, even though its logo is unfortunately not as cool as Haskell's:</p>
-<p><a href="/blog/from-math-to-machine/c-logo.png" target="_blank"><img width="25%" src="/blog/from-math-to-machine/c-logo.png" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/from-math-to-machine/c-logo.png"><img width="25%" src="/blog/from-math-to-machine/c-logo.png" style="max-width:100%;"></a></p>
 <p>Programming in functional languages like Haskell generally works by defining
 what things are and letting the language work out how to arrive at the answer.
 Programming in an imperative language involves explaining to the computer how
@@ -265,7 +267,7 @@ and adapt our thinking to the particulars of the hardware.</p>
 <p>There are actually lots of assembly language syntaxes. In this case we'll be
 using the <a href="nasm.us">Netwide Assembler</a>, also known as <em>nasm</em>. Before we move
 on, let's get the truly important stuff out of the way. Here's nasm's logo:</p>
-<p><a href="/blog/from-math-to-machine/nasm-logo.png" target="_blank"><img width="40%" src="/blog/from-math-to-machine/nasm-logo.png" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/from-math-to-machine/nasm-logo.png"><img width="40%" src="/blog/from-math-to-machine/nasm-logo.png" style="max-width:100%;"></a></p>
 <p>I'm afraid Haskell still wins, but this one isn't bad at all.</p>
 <p>Here's a factorial function written in nasm syntax for an x86-64 computer:</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">factorial:</span>
@@ -382,7 +384,9 @@ on data to move to or from system memory.</p>
 <tr>
 <td>rip</td>
 <td>Always points to the next instruction to be executed</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <p>The general-purpose registers can mostly be used however you want. Other
 registers have specific purposes with rules about how they can be used or
 modified.</p>
@@ -449,7 +453,7 @@ code instruction. However, in assembly, the instructions are specified using
 bits of English words and numbers in decimal notation in order to be easier for
 humans like me and (presumably) you to read and write.</p>
 <p>We can assemble code by hand using the convenient reference at
-<a href="http://ref.x86asm.net/">ref.x86asm.net</a>. A detailed look at hand-assembling
+<a href="http://ref.x86asm.net/" rel="nofollow">ref.x86asm.net</a>. A detailed look at hand-assembling
 code is probably a topic for another day, but just for fun, let's take a quick
 look at how the assembly function could map to machine code.</p>
 <p><em>Note: I'm going to leave out some common optimizations.</em></p>
@@ -488,7 +492,9 @@ decimal (a number from 0-255 for each byte). For example:</p>
 <td>72</td>
 <td>48</td>
 <td>01001000</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <p>The way the data is represented isn't really important. You could make up your
 own encoding format if you wanted, even though nobody else would know how to
 read it.</p>
@@ -534,7 +540,9 @@ the value in <em>rip</em> to point somewhere else.</p>
 <td>Operand</td>
 <td>12</td>
 <td>Jump 12 bytes forward</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <p>So the <em>7e</em> tells the computer to jump depending on a previous <em>cmp</em>
 instruction. <em>0c</em> tells it exactly where to jump, assuming the jump happens.
 <em>0c</em> is hex for <em>12</em>. All together, this means to jump forward 12 bytes from
@@ -571,7 +579,9 @@ start of the loop:</p>
 <td>Operand</td>
 <td>-20</td>
 <td>Jump 20 bytes backward</td>
-</tr></tbody></table>
+</tr>
+</tbody>
+</table>
 <p>So <code>e9</code> tells the CPU to jump and <code>ec ff ff ff</code> tells it to jump
 backward 20 bytes. When this instruction is executed, <em>rip</em> will be pointing to
 <code>c3 (ret)</code> at the end of the function. Applying a delta of -20 to <em>rip</em>

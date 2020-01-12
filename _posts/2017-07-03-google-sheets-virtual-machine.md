@@ -35,7 +35,7 @@ description: A simple virtual machine demonstration inside a spreadsheet
 
 <div class="markdown-body"><h1>Making a virtual machine in Google Sheets</h1>
 <p>I recently noticed that Google Docs has a pretty full-featured scripting system
-called <a href="https://developers.google.com/apps-script/">Apps Script</a>. It lets you
+called <a href="https://developers.google.com/apps-script/" rel="nofollow">Apps Script</a>. It lets you
 write JavaScript to do some pretty useful things:</p>
 <ul>
 <li>Run code in response to events like documents opening or cells changing</li>
@@ -45,14 +45,14 @@ write JavaScript to do some pretty useful things:</p>
 </ul>
 <p>So naturally I had to do something weird with it. Behold: the Google Sheets
 Virtual Machine generating fibonacci numbers!</p>
-<p><a href="/blog/google-sheets-virtual-machine/fibonacci.gif" target="_blank"><img src="/blog/google-sheets-virtual-machine/fibonacci.gif" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/google-sheets-virtual-machine/fibonacci.gif"><img src="/blog/google-sheets-virtual-machine/fibonacci.gif" style="max-width:100%;"></a></p>
 <h1>How it works</h1>
 <p>The VM has a memory area of 100 cells, indexed as 0-99. Each cell can contain
 an instruction or an integer value.</p>
 <p>There's also a stack, which starts at the bottom of the memory area and grows
 upward.</p>
 <p>Here's how the VM sheet looks when it's empty:</p>
-<p><a href="/blog/google-sheets-virtual-machine/blank.png" target="_blank"><img src="/blog/google-sheets-virtual-machine/blank.png" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/google-sheets-virtual-machine/blank.png"><img src="/blog/google-sheets-virtual-machine/blank.png" style="max-width:100%;"></a></p>
 <p>Notice the following:</p>
 <ul>
 <li><strong>RA</strong>, <strong>RB</strong>, <strong>RC</strong>, and <strong>RD</strong> are general purpose registers.</li>
@@ -75,7 +75,7 @@ incremented to point to the next cell in memory.</p>
 <h1>Usage</h1>
 <p>There is a custom menu called <em>Computer</em> with some functions used to control
 the VM:</p>
-<p><a href="/blog/google-sheets-virtual-machine/menu.png" target="_blank"><img src="/blog/google-sheets-virtual-machine/menu.png" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/google-sheets-virtual-machine/menu.png"><img src="/blog/google-sheets-virtual-machine/menu.png" style="max-width:100%;"></a></p>
 <ul>
 <li><strong>Run</strong> will run the current program until it ends or an error is
 encountered.</li>
@@ -170,11 +170,11 @@ contained the value 30, you could copy the value 30 into <em>ra</em> like this:<
 <p>You can use the stack and the <em>call</em> and <em>ret</em> instructions to make recursive
 calls. Here's an example which uses recursion to generate the factorial of
 the number 5:</p>
-<p><a href="/blog/google-sheets-virtual-machine/factorial.gif" target="_blank"><img src="/blog/google-sheets-virtual-machine/factorial.gif" style="max-width:100%;"></a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="/blog/google-sheets-virtual-machine/factorial.gif"><img src="/blog/google-sheets-virtual-machine/factorial.gif" style="max-width:100%;"></a></p>
 <p>The code starting at <code>jl ra 2 50</code> is a function which takes an input in <em>ra</em>
 and returns a result in <em>rd</em>. It calls itself recursively to calculate the
 factorial of the value in <em>ra</em>.</p>
 <h1>Getting a copy</h1>
 <p>If you want to play around with this yourself, you can make a copy of it
-<a href="https://docs.google.com/spreadsheets/d/1385V2Mu2yZOMSJcSz9JrV6r8X0_JGzHZZRdPhaAdwWY/edit?usp=sharing">here</a>.</p>
+<a href="https://docs.google.com/spreadsheets/d/1385V2Mu2yZOMSJcSz9JrV6r8X0_JGzHZZRdPhaAdwWY/edit?usp=sharing" rel="nofollow">here</a>.</p>
 <p>You can see the Apps Script code by going to Tools and then Script Editor.</p></div>

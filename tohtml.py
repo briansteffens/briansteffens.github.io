@@ -5,7 +5,7 @@ import sys
 import requests
 
 
-guide_repo = 'repo'
+guide_repo = 'introduction-to-64-bit-assembly'
 endpoint = 'https://api.github.com/'
 guide_output_dir = 'introduction-to-64-bit-assembly'
 
