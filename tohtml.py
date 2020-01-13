@@ -125,6 +125,10 @@ process_post('blog/google-sheets-virtual-machine/post.md',
              'Google Sheets virtual machine',
              'A simple virtual machine demonstration inside a spreadsheet')
 
+process_post('blog/hello-world-from-a-bootloader/post.md',
+             '_posts/2020-01-15-hello-world-from-a-bootloader.md',
+             'Hello world from a bootloader',
+             'Printing text from a 512-byte bootloader in 16-bit x86 assembly')
 
 def process_guide(guide, next_guide):
     readme = os.path.join(guide_repo, guide['name'], 'README.md')
