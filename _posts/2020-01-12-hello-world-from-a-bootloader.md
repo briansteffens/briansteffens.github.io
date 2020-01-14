@@ -35,33 +35,34 @@ description: Printing text from a 512-byte bootloader in 16-bit x86 assembly
 
 <div class="markdown-body"><h1>Hello world from a bootloader</h1>
 <p>In my day, registers were 16 bits, computers ran one program at a time, and the
-highest number known was 65,536. Programs had direct access to memory so if you
+highest known number was 65,536. Programs had direct access to memory so if you
 messed up your pointer math you could crash the whole computer, which was the
 style at the time..</p>
 <p><a target="_blank" rel="noopener noreferrer" href="/blog/hello-world-from-a-bootloader/onion-belt.jpg"><img width="50%" src="/blog/hello-world-from-a-bootloader/onion-belt.jpg" style="max-width:100%;"></a></p>
-<p>Modern processors run hundreds or thousands of programs at once and use
-newfangled things like virtual memory to provide isolation between programs.
-Registers doubled to 32 bits and then again to a ridiculous 64 bits.</p>
-<p>Despite all these supposed advancements,
+<p>Now, modern computers run hundreds or thousands of programs at once and use
+newfangled nonsense like virtual memory to provide isolation between programs.
+CPU register size doubled to 32 bits and then again to a ridiculous 64 bits.</p>
+<p>Despite these supposed advancements,
 <a href="https://en.wikipedia.org/wiki/X86" rel="nofollow">x86</a> computers have remained remarkably
 backwards-compatible: 16-bit <a href="https://wiki.osdev.org/Real_Mode" rel="nofollow">real mode</a>
 still exists on every modern x86 CPU.</p>
-<p>Even today, when a modern x86 computer boots, it assumes it may be running
-software from the 80s, so it starts in real mode for compatibility purposes.
-It executes a tiny chunk of 16-bit code from the beginning of the boot disk.
-These days, this is usually just enough code to bootstrap the rest of the
-system and switch to the modern 64-bit
-<a href="https://en.wikipedia.org/wiki/Protected_mode" rel="nofollow">protected mode</a>.</p>
-<p>This tiny piece of 16-bit bootstrapping code is called a bootloader.</p>
-<h2>Boot sequence</h2>
+<p>Even today, when an x86 computer boots, it starts in 16-bit real mode for
+compatibility with chips going back to the late 70s. It executes a tiny chunk
+of 16-bit code from the beginning of the boot disk, just enough to load the
+rest of the system and enable 64-bit and <a href="https://en.wikipedia.org/wiki/Protected_mode" rel="nofollow">protected
+mode</a>.</p>
+<p>This tiny piece of 16-bit code is called a bootloader, and as it turns out,
+it's pretty straightforward to make one that does almost nothing!</p>
+<h2>BIOS</h2>
+<p>When an x86 computer boots, the <a href="https://en.wikipedia.org/wiki/BIOS" rel="nofollow">BIOS</a>
+starts first. Its job is to initialize hardware and begin the boot process.</p>
 <p><em>Note:
 <a href="https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface" rel="nofollow">UEFI</a> is
 a newer replacement for the BIOS but since I don't know anything about UEFI,
-we'll target the legacy BIOS.</em></p>
-<p>When an x86 computer boots, the <a href="https://en.wikipedia.org/wiki/BIOS" rel="nofollow">BIOS</a>
-starts first. Its job is to initialize hardware and start the boot process.
-Additionally, the BIOS provides a set of services which can be used by
-bootloaders and operating systems to do useful stuff like:</p>
+we'll go with the BIOS.</em></p>
+<h2>BIOS interrupts</h2>
+<p>The BIOS provides a set of services which can be used by the bootloader we're
+going to write to do useful things like:</p>
 <ul>
 <li>Print text to the screen.</li>
 <li>Manipulate the cursor.</li>
@@ -69,37 +70,49 @@ bootloaders and operating systems to do useful stuff like:</p>
 <li>Inspect the computer's hardware configuration.</li>
 </ul>
 <p>These services are accessed by setting registers to specific values and then
-issuing an <a href="https://en.wikipedia.org/wiki/BIOS_interrupt_call" rel="nofollow">interrupt</a> with
-the appropriate code.</p>
-<p>As an example, the following snippet prints the character <code>A</code> to screen:</p>
+issuing a <a href="https://en.wikipedia.org/wiki/BIOS_interrupt_call" rel="nofollow">BIOS interrupt</a>
+with the appropriate code.</p>
+<p>For example, this snippet prints the character <code>A</code> to screen:</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">ah</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0x0E</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">al</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s">'A'</span>
 <span class="pl-en">    </span><span class="pl-k">int</span><span class="pl-en"> </span><span class="pl-c1">0x10</span></pre></div>
-<p>The BIOS then checks the configured boot disk to make sure it contains a
-valid boot sector. A boot sector is a small 512-byte chunk of code
-at the very beginning of a disk or hard drive, in the space before any
-partitions.</p>
-<p>The BIOS checks the boot disk for a magic number sequence of <code>[0x55, 0xAA]</code> at
-byte offsets 510 and 511. If found, the BIOS assumes it's a valid boot sector.
-It loads the first 512 bytes from the disk into memory at address 0x7C00 and
+<p>Back in the days of <a href="https://en.wikipedia.org/wiki/DOS" rel="nofollow">DOS</a> it was common for
+everyday programs to use this BIOS-provided functionality, but these days it's
+mostly just bootloaders that still use it.</p>
+<h2>Master boot record</h2>
+<p>The <a href="https://en.wikipedia.org/wiki/Master_boot_record" rel="nofollow">master boot record
+(MBR)</a> is a tiny 512-byte
+structure at the very beginning of a disk. This structure will house our
+custom bootloader code.</p>
+<p>Here's an example layout of a master boot record:</p>
+<p>+--------+----------------------------------------------------+---------------+
+| Offset | Description                                        | Size in bytes |
++--------+----------------------------------------------------+---------------+
+| +0     | Bootloader executable code                         |           440 |
+| +446   | Partition entry #1                                 |            16 |
+| +462   | Partition entry #2                                 |            16 |
+| +478   | Partition entry #3                                 |            16 |
+| +494   | Partition entry #4                                 |            16 |
+| +510   | Boot signature (0x55, 0xAA)                        |             2 |
++--------+----------------------------------------------------+---------------+</p>
+<p><em>Note: There are a lot of variations on this structure. Most involve using the
+end of the code section to store additional meta-data about the disk.</em></p>
+<p>When it's time to boot into an operating system, the BIOS checks the configured
+boot disk for a <em>boot signature</em>: a magic number sequence of <code>[0x55, 0xAA]</code> at
+byte offsets 510 and 511. If found, the BIOS assumes this is a valid boot
+sector.</p>
+<p>The BIOS loads the 512-byte MBR into memory starting at address 0x7C00 and
 executes the code at this address, passing control over to the bootloader.</p>
-<p>The bootloader uses the services provided by the BIOS to inspect the computer's
-hardware configuration and boot the operating system (or the next stage in the
-boot process in the case of multi-stage boot). It may also present a boot menu
-to the user or display a logo or other graphic.</p>
-<p>We can make a very simple bootloader by writing a bit of 16-bit x86 code and
-assembling it with <a href="https://en.wikipedia.org/wiki/Netwide_Assembler" rel="nofollow">NASM</a>.
-This could be used to boot a physical computer but it's much easier to use a
-virtual machine. <a href="https://en.wikipedia.org/wiki/QEMU" rel="nofollow">QEMU</a> can be used for
-this purpose.</p>
-<h2>The bootloader</h2>
+<p><em>Note: The <a href="https://en.wikipedia.org/wiki/GUID_Partition_Table" rel="nofollow">GUID Partition Table or
+GPT</a> is a newer replacement
+partition table format.</em></p>
+<h2>A custom bootloader</h2>
 <p>A typical bootloader runs just enough code to bootstrap the rest of the system.
-It may lookup hardware configuration data from the BIOS, implement simple disk
-and filesystem drivers, and use those drivers to load the rest of the system
+It may look up hardware configuration data from the BIOS, implement a simple
+filesystem driver, and use that driver to load the rest of the system
 into memory from disk.</p>
-<p>Our simple bootloader won't be quite so fancy: we'll just boot up and write a
-message to the screen by performing a BIOS interrupt for each character in a
-string.</p>
+<p>Our simple bootloader won't be quite so fancy: we'll just write a message to
+the screen.</p>
 <p>Here's the full assembly file (line-by-line breakdown to follow):</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">%define</span> <span class="pl-en">NULL </span><span class="pl-c1">0</span>
 
