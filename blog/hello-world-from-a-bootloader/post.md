@@ -40,17 +40,17 @@ we'll go with the BIOS.*
 
 ## BIOS interrupts
 
-The BIOS provides a set of services which can be used by the bootloader we're
-going to write to do useful things like:
+The BIOS provides a set of services which can be used by our bootloader to do
+useful things like:
 
 - Print text to the screen.
 - Manipulate the cursor.
 - Switch to certain graphics modes.
 - Inspect the computer's hardware configuration.
 
-These services are accessed by setting registers to specific values and then
-issuing a [BIOS interrupt](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
-with the appropriate code.
+These services are accessed by setting registers to specific values and issuing
+a [BIOS interrupt](https://en.wikipedia.org/wiki/BIOS_interrupt_call) with the
+appropriate code.
 
 For example, this snippet prints the character `A` to screen:
 
@@ -62,8 +62,7 @@ For example, this snippet prints the character `A` to screen:
 
 Back in the days of [DOS](https://en.wikipedia.org/wiki/DOS) it was common for
 everyday programs to use this BIOS-provided functionality, but these days it's
-mostly just bootloaders that still use it.
-
+mostly just used by bootloaders.
 
 
 
@@ -107,10 +106,10 @@ partition table format.*
 
 ## A custom bootloader
 
-A typical bootloader runs just enough code to bootstrap the rest of the system.
+A typical bootloader is responsible for bootstrapping the rest of the system.
 It may look up hardware configuration data from the BIOS, implement a simple
-filesystem driver, and use that driver to load the rest of the system
-into memory from disk.
+filesystem driver, and use that driver to load the rest of the system into
+memory from disk.
 
 Our simple bootloader won't be quite so fancy: we'll just write a message to
 the screen.
@@ -142,19 +141,22 @@ infinite_loop:
 
 message: db "Hi, I'm a bootloader who doesn't load anything.", `\r`, `\n`, NULL
 
+; Pad out the file to the 510th byte with zeroes.
 times 510-($-$$) db 0
-dw 0xAA55
+
+; MBR boot signature.
+db 0xAA, 0x55
 ```
 
 To boot a computer with this, save the above code to a file named `hello.asm`
-and use NASM to assemble it:
+and use [NASM](https://www.nasm.us/) to assemble it:
 
 ```bash
 $ nasm hello.asm -f bin -o hello.bin
 ```
 
-Now use QEMU to emulate an x86 computer and tell it to boot our custom
-bootloader:
+Now use [QEMU](https://www.qemu.org/) to emulate an x86 computer and tell it to
+boot our custom bootloader:
 
 ```bash
 $ qemu-system-x86 hello.bin

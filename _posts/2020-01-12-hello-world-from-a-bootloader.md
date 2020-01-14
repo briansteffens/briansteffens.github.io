@@ -107,10 +107,10 @@ executes the code at this address, passing control over to the bootloader.</p>
 GPT</a> is a newer replacement
 partition table format.</em></p>
 <h2>A custom bootloader</h2>
-<p>A typical bootloader runs just enough code to bootstrap the rest of the system.
+<p>A typical bootloader is responsible for bootstrapping the rest of the system.
 It may look up hardware configuration data from the BIOS, implement a simple
-filesystem driver, and use that driver to load the rest of the system
-into memory from disk.</p>
+filesystem driver, and use that driver to load the rest of the system into
+memory from disk.</p>
 <p>Our simple bootloader won't be quite so fancy: we'll just write a message to
 the screen.</p>
 <p>Here's the full assembly file (line-by-line breakdown to follow):</p>
@@ -138,13 +138,16 @@ the screen.</p>
 
 <span class="pl-en">message: db </span><span class="pl-s">"Hi, I'</span><span class="pl-en">m a bootloader who doesn</span><span class="pl-s">'t load anything."</span><span class="pl-s1">,</span><span class="pl-en"> `\r`</span><span class="pl-s1">,</span><span class="pl-en"> `\n`</span><span class="pl-s1">,</span><span class="pl-en"> NULL</span>
 
+<span class="pl-c">; Pad out the file to the 510th byte with zeroes.</span>
 <span class="pl-c1">times</span><span class="pl-en"> </span><span class="pl-c1">510</span><span class="pl-s1">-</span><span class="pl-en">($</span><span class="pl-s1">-</span><span class="pl-en">$$) db </span><span class="pl-c1">0</span>
-<span class="pl-c1">dw</span><span class="pl-en"> </span><span class="pl-c1">0xAA55</span></pre></div>
+
+<span class="pl-c">; MBR boot signature.</span>
+<span class="pl-c1">db</span><span class="pl-en"> </span><span class="pl-c1">0xAA</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0x55</span></pre></div>
 <p>To boot a computer with this, save the above code to a file named <code>hello.asm</code>
-and use NASM to assemble it:</p>
+and use <a href="https://www.nasm.us/" rel="nofollow">NASM</a> to assemble it:</p>
 <div class="highlight highlight-source-shell"><pre>$ nasm hello.asm -f bin -o hello.bin</pre></div>
-<p>Now use QEMU to emulate an x86 computer and tell it to boot our custom
-bootloader:</p>
+<p>Now use <a href="https://www.qemu.org/" rel="nofollow">QEMU</a> to emulate an x86 computer and tell it to
+boot our custom bootloader:</p>
 <div class="highlight highlight-source-shell"><pre>$ qemu-system-x86 hello.bin</pre></div>
 <p>When I run this, I see:</p>
 <p><a target="_blank" rel="noopener noreferrer" href="/blog/hello-world-from-a-bootloader/in-qemu.png"><img width="100%" src="/blog/hello-world-from-a-bootloader/in-qemu.png" style="max-width:100%;"></a></p>

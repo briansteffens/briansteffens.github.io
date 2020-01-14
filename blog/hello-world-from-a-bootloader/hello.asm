@@ -33,7 +33,7 @@ message: db "Hi, I'm a bootloader who doesn't load anything.", `\r`, `\n`, NULL
 ; Pad out the rest of the binary with 0s to the byte 510
 times 510-($-$$) db 0
 
-; Bytes 511 and 512 should be 170 and 85 in decimal. This is a magic number
+; Bytes at offsets 510 and 511 should be 0xAA and 0x55. This is a magic number
 ; which indicates this is a bootloader.
 ; https://developer.ibm.com/articles/l-linuxboot/
-dw 0xAA55
+db 0xAA, 0x55
