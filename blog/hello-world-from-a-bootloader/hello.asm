@@ -30,10 +30,8 @@ infinite_loop:
 ; The message to print.
 message: db "Hi, I'm a bootloader who doesn't load anything.", `\r`, `\n`, NULL
 
-; Pad out the rest of the binary with 0s to the byte 510
+; Pad out the rest of the binary with 0s to the byte 510.
 times 510-($-$$) db 0
 
-; Bytes at offsets 510 and 511 should be 0xAA and 0x55. This is a magic number
-; which indicates this is a bootloader.
-; https://developer.ibm.com/articles/l-linuxboot/
-db 0xAA, 0x55
+; MBR boot signature.
+db 0x55, 0xAA

@@ -64,6 +64,9 @@ Back in the days of [DOS](https://en.wikipedia.org/wiki/DOS) it was common for
 everyday programs to use this BIOS-provided functionality, but these days it's
 mostly just used by bootloaders.
 
+With these services in place, the BIOS checks the configured boot device for
+a *master boot record* which contains a bootloader which can be run.
+
 
 
 ## Master boot record
@@ -75,22 +78,20 @@ custom bootloader code.
 
 Here's an example layout of a master boot record:
 
-+--------+----------------------------------------------------+---------------+
-| Offset | Description                                        | Size in bytes |
-+--------+----------------------------------------------------+---------------+
+| Offset | Description                                        | Size (bytes)  |
+|--------|----------------------------------------------------|---------------|
 | +0     | Bootloader executable code                         |           440 |
 | +446   | Partition entry #1                                 |            16 |
 | +462   | Partition entry #2                                 |            16 |
 | +478   | Partition entry #3                                 |            16 |
 | +494   | Partition entry #4                                 |            16 |
 | +510   | Boot signature (0x55, 0xAA)                        |             2 |
-+--------+----------------------------------------------------+---------------+
 
 *Note: There are a lot of variations on this structure. Most involve using the
 end of the code section to store additional meta-data about the disk.*
 
 When it's time to boot into an operating system, the BIOS checks the configured
-boot disk for a *boot signature*: a magic number sequence of `[0x55, 0xAA]` at
+boot disk for the boot signature: a magic number sequence of `[0x55, 0xAA]` at
 byte offsets 510 and 511. If found, the BIOS assumes this is a valid boot
 sector.
 
@@ -99,7 +100,7 @@ executes the code at this address, passing control over to the bootloader.
 
 *Note: The [GUID Partition Table or
 GPT](https://en.wikipedia.org/wiki/GUID_Partition_Table) is a newer replacement
-partition table format.*
+format for partition tables.*
 
 
 
@@ -145,18 +146,18 @@ message: db "Hi, I'm a bootloader who doesn't load anything.", `\r`, `\n`, NULL
 times 510-($-$$) db 0
 
 ; MBR boot signature.
-db 0xAA, 0x55
+db 0x55, 0xAA
 ```
 
-To boot a computer with this, save the above code to a file named `hello.asm`
-and use [NASM](https://www.nasm.us/) to assemble it:
+To run it, save the above code to a file named `hello.asm` and use
+[NASM](https://www.nasm.us/) to assemble it:
 
 ```bash
 $ nasm hello.asm -f bin -o hello.bin
 ```
 
-Now use [QEMU](https://www.qemu.org/) to emulate an x86 computer and tell it to
-boot our custom bootloader:
+Now use [QEMU](https://www.qemu.org/) to emulate an x86 computer and boot from
+the custom bootloader:
 
 ```bash
 $ qemu-system-x86 hello.bin
@@ -183,7 +184,7 @@ clearer that the `0` is the NULL-termination character.
 org 0x7C00
 ```
 
-When the virtual machine boots, it will load our bootloader binary into memory
+When the virtual machine boots, it will load the bootloader binary into memory
 starting at address 0x7C00. NASM uses the `org` directive to figure out what
 offsets to use for things like jump labels and the message string.
 
@@ -238,10 +239,6 @@ By setting `ah` to `0x0E` and then interrupting the BIOS with interrupt code
 `0x10`, the BIOS will check `al` for an ASCII character and print it out on
 the screen.
 
-It's not super important to memorize these specific codes, they're just magic
-numbers you look up when you need to make calls. In this situation, the BIOS
-is a lot like a library we'd use in a normal program.
-
 ```nasm
     jmp print_string
 ```
@@ -272,8 +269,8 @@ are *control characters*:
 - `\r` is a carriage return, which moves the cursor back to the beginning of
   the line.
 - `\n` is the newline character, which moves the cursor down to the next line.
-- The NULL-termination character indicates the end of the string so we know
-  when to stop printing characters.
+- The NULL-termination character indicates the end of the string so the loop
+  can detect when to stop printing characters.
 
 ```nasm
 times 510-($-$$) db 0
@@ -294,11 +291,11 @@ So all together, this writes `0`s up to and including the 510th byte of the
 binary file.
 
 ```nasm
-dw 0xAA55
+db 0x55, 0xAA
 ```
 
 This writes the 2-byte boot sequence to the end of the file. For a bootloader
 to be recognized as such, it's expected to have its 511th and 512th bytes set
-to the values `0xAA` and `0x55`. If these aren't here, some BIOS
+to the values `0x55` and `0xAA`. If these aren't here, some BIOS
 implementations may not recognize this as a bootloader and fail to load it.
 

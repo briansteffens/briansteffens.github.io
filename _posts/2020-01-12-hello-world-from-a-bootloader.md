@@ -61,51 +61,84 @@ starts first. Its job is to initialize hardware and begin the boot process.</p>
 a newer replacement for the BIOS but since I don't know anything about UEFI,
 we'll go with the BIOS.</em></p>
 <h2>BIOS interrupts</h2>
-<p>The BIOS provides a set of services which can be used by the bootloader we're
-going to write to do useful things like:</p>
+<p>The BIOS provides a set of services which can be used by our bootloader to do
+useful things like:</p>
 <ul>
 <li>Print text to the screen.</li>
 <li>Manipulate the cursor.</li>
 <li>Switch to certain graphics modes.</li>
 <li>Inspect the computer's hardware configuration.</li>
 </ul>
-<p>These services are accessed by setting registers to specific values and then
-issuing a <a href="https://en.wikipedia.org/wiki/BIOS_interrupt_call" rel="nofollow">BIOS interrupt</a>
-with the appropriate code.</p>
+<p>These services are accessed by setting registers to specific values and issuing
+a <a href="https://en.wikipedia.org/wiki/BIOS_interrupt_call" rel="nofollow">BIOS interrupt</a> with the
+appropriate code.</p>
 <p>For example, this snippet prints the character <code>A</code> to screen:</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">ah</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0x0E</span>
 <span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">al</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-s">'A'</span>
 <span class="pl-en">    </span><span class="pl-k">int</span><span class="pl-en"> </span><span class="pl-c1">0x10</span></pre></div>
 <p>Back in the days of <a href="https://en.wikipedia.org/wiki/DOS" rel="nofollow">DOS</a> it was common for
 everyday programs to use this BIOS-provided functionality, but these days it's
-mostly just bootloaders that still use it.</p>
+mostly just used by bootloaders.</p>
+<p>With these services in place, the BIOS checks the configured boot device for
+a <em>master boot record</em> which contains a bootloader which can be run.</p>
 <h2>Master boot record</h2>
 <p>The <a href="https://en.wikipedia.org/wiki/Master_boot_record" rel="nofollow">master boot record
 (MBR)</a> is a tiny 512-byte
 structure at the very beginning of a disk. This structure will house our
 custom bootloader code.</p>
 <p>Here's an example layout of a master boot record:</p>
-<p>+--------+----------------------------------------------------+---------------+
-| Offset | Description                                        | Size in bytes |
-+--------+----------------------------------------------------+---------------+
-| +0     | Bootloader executable code                         |           440 |
-| +446   | Partition entry #1                                 |            16 |
-| +462   | Partition entry #2                                 |            16 |
-| +478   | Partition entry #3                                 |            16 |
-| +494   | Partition entry #4                                 |            16 |
-| +510   | Boot signature (0x55, 0xAA)                        |             2 |
-+--------+----------------------------------------------------+---------------+</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Description</th>
+<th>Size (bytes)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+0</td>
+<td>Bootloader executable code</td>
+<td>440</td>
+</tr>
+<tr>
+<td>+446</td>
+<td>Partition entry #1</td>
+<td>16</td>
+</tr>
+<tr>
+<td>+462</td>
+<td>Partition entry #2</td>
+<td>16</td>
+</tr>
+<tr>
+<td>+478</td>
+<td>Partition entry #3</td>
+<td>16</td>
+</tr>
+<tr>
+<td>+494</td>
+<td>Partition entry #4</td>
+<td>16</td>
+</tr>
+<tr>
+<td>+510</td>
+<td>Boot signature (0x55, 0xAA)</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
 <p><em>Note: There are a lot of variations on this structure. Most involve using the
 end of the code section to store additional meta-data about the disk.</em></p>
 <p>When it's time to boot into an operating system, the BIOS checks the configured
-boot disk for a <em>boot signature</em>: a magic number sequence of <code>[0x55, 0xAA]</code> at
+boot disk for the boot signature: a magic number sequence of <code>[0x55, 0xAA]</code> at
 byte offsets 510 and 511. If found, the BIOS assumes this is a valid boot
 sector.</p>
 <p>The BIOS loads the 512-byte MBR into memory starting at address 0x7C00 and
 executes the code at this address, passing control over to the bootloader.</p>
 <p><em>Note: The <a href="https://en.wikipedia.org/wiki/GUID_Partition_Table" rel="nofollow">GUID Partition Table or
 GPT</a> is a newer replacement
-partition table format.</em></p>
+format for partition tables.</em></p>
 <h2>A custom bootloader</h2>
 <p>A typical bootloader is responsible for bootstrapping the rest of the system.
 It may look up hardware configuration data from the BIOS, implement a simple
@@ -142,12 +175,12 @@ the screen.</p>
 <span class="pl-c1">times</span><span class="pl-en"> </span><span class="pl-c1">510</span><span class="pl-s1">-</span><span class="pl-en">($</span><span class="pl-s1">-</span><span class="pl-en">$$) db </span><span class="pl-c1">0</span>
 
 <span class="pl-c">; MBR boot signature.</span>
-<span class="pl-c1">db</span><span class="pl-en"> </span><span class="pl-c1">0xAA</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0x55</span></pre></div>
-<p>To boot a computer with this, save the above code to a file named <code>hello.asm</code>
-and use <a href="https://www.nasm.us/" rel="nofollow">NASM</a> to assemble it:</p>
+<span class="pl-c1">db</span><span class="pl-en"> </span><span class="pl-c1">0x55</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0xAA</span></pre></div>
+<p>To run it, save the above code to a file named <code>hello.asm</code> and use
+<a href="https://www.nasm.us/" rel="nofollow">NASM</a> to assemble it:</p>
 <div class="highlight highlight-source-shell"><pre>$ nasm hello.asm -f bin -o hello.bin</pre></div>
-<p>Now use <a href="https://www.qemu.org/" rel="nofollow">QEMU</a> to emulate an x86 computer and tell it to
-boot our custom bootloader:</p>
+<p>Now use <a href="https://www.qemu.org/" rel="nofollow">QEMU</a> to emulate an x86 computer and boot from
+the custom bootloader:</p>
 <div class="highlight highlight-source-shell"><pre>$ qemu-system-x86 hello.bin</pre></div>
 <p>When I run this, I see:</p>
 <p><a target="_blank" rel="noopener noreferrer" href="/blog/hello-world-from-a-bootloader/in-qemu.png"><img width="100%" src="/blog/hello-world-from-a-bootloader/in-qemu.png" style="max-width:100%;"></a></p>
@@ -158,7 +191,7 @@ boot our custom bootloader:</p>
 directive, it's just a convenience for the programmer to make it a little
 clearer that the <code>0</code> is the NULL-termination character.</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">org </span><span class="pl-c1">0x7C00</span></pre></div>
-<p>When the virtual machine boots, it will load our bootloader binary into memory
+<p>When the virtual machine boots, it will load the bootloader binary into memory
 starting at address 0x7C00. NASM uses the <code>org</code> directive to figure out what
 offsets to use for things like jump labels and the message string.</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">mov</span><span class="pl-en"> </span><span class="pl-v">si</span><span class="pl-s1">,</span><span class="pl-en"> message</span></pre></div>
@@ -187,9 +220,6 @@ jump out of the loop to stop processing.</p>
 By setting <code>ah</code> to <code>0x0E</code> and then interrupting the BIOS with interrupt code
 <code>0x10</code>, the BIOS will check <code>al</code> for an ASCII character and print it out on
 the screen.</p>
-<p>It's not super important to memorize these specific codes, they're just magic
-numbers you look up when you need to make calls. In this situation, the BIOS
-is a lot like a library we'd use in a normal program.</p>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-en">    </span><span class="pl-k">jmp</span><span class="pl-en"> print_string</span></pre></div>
 <p>Jump back to the <code>print_string:</code> label. This starts the loop over again and
 outputs the next character to the screen.</p>
@@ -208,8 +238,8 @@ are <em>control characters</em>:</p>
 <li><code>\r</code> is a carriage return, which moves the cursor back to the beginning of
 the line.</li>
 <li><code>\n</code> is the newline character, which moves the cursor down to the next line.</li>
-<li>The NULL-termination character indicates the end of the string so we know
-when to stop printing characters.</li>
+<li>The NULL-termination character indicates the end of the string so the loop
+can detect when to stop printing characters.</li>
 </ul>
 <div class="highlight highlight-source-assembly"><pre><span class="pl-c1">times</span><span class="pl-en"> </span><span class="pl-c1">510</span><span class="pl-s1">-</span><span class="pl-en">($</span><span class="pl-s1">-</span><span class="pl-en">$$) db </span><span class="pl-c1">0</span></pre></div>
 <p>This inscrutable-looking line tells the assembler to pad out the generated
@@ -223,8 +253,8 @@ binary file to the 510th byte with <code>0</code>s.</p>
 </ul>
 <p>So all together, this writes <code>0</code>s up to and including the 510th byte of the
 binary file.</p>
-<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">dw</span><span class="pl-en"> </span><span class="pl-c1">0xAA55</span></pre></div>
+<div class="highlight highlight-source-assembly"><pre><span class="pl-c1">db</span><span class="pl-en"> </span><span class="pl-c1">0x55</span><span class="pl-s1">,</span><span class="pl-en"> </span><span class="pl-c1">0xAA</span></pre></div>
 <p>This writes the 2-byte boot sequence to the end of the file. For a bootloader
 to be recognized as such, it's expected to have its 511th and 512th bytes set
-to the values <code>0xAA</code> and <code>0x55</code>. If these aren't here, some BIOS
+to the values <code>0x55</code> and <code>0xAA</code>. If these aren't here, some BIOS
 implementations may not recognize this as a bootloader and fail to load it.</p></div>
