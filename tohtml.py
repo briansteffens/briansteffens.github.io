@@ -109,26 +109,31 @@ def process_post(source_fn, destination_fn, title, description):
         f.write(output)
 
 
-process_post('blog/from-math-to-machine/post.md',
-             '_posts/2017-02-20-from-math-to-machine.md',
-             'From math to machine',
-             'Compare and contrast how a factorial function can be '
-             'represented in math, Haskell, C, assembly, and machine code')
+#process_post('blog/from-math-to-machine/post.md',
+#             '_posts/2017-02-20-from-math-to-machine.md',
+#             'From math to machine',
+#             'Compare and contrast how a factorial function can be '
+#             'represented in math, Haskell, C, assembly, and machine code')
+#
+#process_post('blog/split-buffers/post.md',
+#             '_posts/2017-06-19-split-buffers.md',
+#             'Split buffers',
+#             'A variation of the gap buffer data structure for text editors')
+#
+#process_post('blog/google-sheets-virtual-machine/post.md',
+#             '_posts/2017-07-03-google-sheets-virtual-machine.md',
+#             'Google Sheets virtual machine',
+#             'A simple virtual machine demonstration inside a spreadsheet')
+#
+#process_post('blog/hello-world-from-a-bootloader/post.md',
+#             '_posts/2020-01-15-hello-world-from-a-bootloader.md',
+#             'Hello world from a bootloader',
+#             'Printing text from a 512-byte bootloader in 16-bit x86 assembly')
 
-process_post('blog/split-buffers/post.md',
-             '_posts/2017-06-19-split-buffers.md',
-             'Split buffers',
-             'A variation of the gap buffer data structure for text editors')
-
-process_post('blog/google-sheets-virtual-machine/post.md',
-             '_posts/2017-07-03-google-sheets-virtual-machine.md',
-             'Google Sheets virtual machine',
-             'A simple virtual machine demonstration inside a spreadsheet')
-
-process_post('blog/hello-world-from-a-bootloader/post.md',
-             '_posts/2020-01-15-hello-world-from-a-bootloader.md',
-             'Hello world from a bootloader',
-             'Printing text from a 512-byte bootloader in 16-bit x86 assembly')
+process_post('blog/graphics-in-a-bootloader/post.md',
+             '_posts/2020-01-16-graphics-in-a-bootloader.md',
+             'Graphics in a bootloader',
+             'Graphics in a 16-bit assembly bootloader')
 
 def process_guide(guide, next_guide):
     readme = os.path.join(guide_repo, guide['name'], 'README.md')
